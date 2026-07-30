@@ -105,7 +105,6 @@ Analyze this response and return JSON feedback.`
         .single()
 
       if (session) {
-        // Score save karo
         await supabase.from('scores').insert({
           session_id: session.id,
           user_id: user.id,
@@ -116,6 +115,34 @@ Analyze this response and return JSON feedback.`
           relevance: result.scores.relevance,
           composite: result.score,
         })
+
+        if (Array.isArray(result.feedback) && result.feedback.length > 0) {
+          const feedbackRows = result.feedback.map(
+            (
+              item: { title: string; explanation: string; technique: string },
+              index: number
+            ) => ({
+              session_id: session.id,
+              user_id: user.id,
+              rank: index + 1,
+              issue_type: 'general',
+              issue_title: item.title,
+              explanation: item.explanation,
+              technique: item.technique,
+              severity: 'medium',
+              was_shown: true,
+              is_resolved: false,
+            })
+          )
+
+          const { error: feedbackError } = await supabase
+            .from('feedback_items')
+            .insert(feedbackRows)
+
+          if (feedbackError) {
+            console.error('Feedback save error:', feedbackError.message)
+          }
+        }
 
         // Streak update karo
         const today = new Date().toISOString().split('T')[0]

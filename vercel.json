@@ -1,0 +1,16 @@
+{
+    "crons": [
+      {
+        "path": "/api/cron/daily-challenge",
+        "schedule": "0 18 * * *"
+      },
+      {
+        "path": "/api/cron/cleanup-audio",
+        "schedule": "0 20 * * *"
+      },
+      {
+        "path": "/api/cron/send-reminders",
+        "schedule": "0 15 * * *"
+      }
+    ]
+  }

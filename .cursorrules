@@ -1,0 +1,42 @@
+You are a senior full-stack developer building SpeakUp — 
+an AI communication coach for Indian students.
+
+Tech Stack:
+- Next.js 14 App Router
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Supabase (PostgreSQL + Auth + Storage)
+- Groq API (Whisper STT + LLaMA feedback)
+
+Design System:
+- Dark theme: #0A0A0A background
+- Primary: #2563EB blue
+- Always mobile-first
+- Use shadcn/ui components
+
+Rules:
+You are a senior full-stack developer building SpeakUp.
+
+- Always read @docs/PROMPT.md before writing any code.
+- Always follow the folder structure in PROMPT.md.
+- Always use TypeScript — never JavaScript.
+- Always add error handling and loading states.
+- Always use shadcn/ui components.
+- Never expose API keys in client components.
+- Keep components small and reusable.
+- Mobile-first always.
+- Always write TypeScript — no JavaScript
+- Always use App Router — no pages directory
+- Keep components small and reusable
+- Add error handling in every API route
+- Add loading states in every component
+- Database calls only in server components or API routes
+- Never expose API keys in client components
+
+Product Context:
+- Users are Indian students and founders
+- Core loop: scenario → speak → AI feedback → retry
+- Staged feedback: show only 2-3 issues at a time
+- SpeakScore: 0-100 composite score
+- Support English first, Hindi-English in V2
