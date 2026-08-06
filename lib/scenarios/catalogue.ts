@@ -1,4 +1,6 @@
-export type ScenarioLevel = 'Beginner' | 'Intermediate' | 'Advanced'
+export type ScenarioLevel = 'Beginner' | 'Easy' | 'Medium' | 'Hard' | 'Expert'
+
+export const LEVELS: ScenarioLevel[] = ['Beginner', 'Easy', 'Medium', 'Hard', 'Expert']
 
 export interface Scenario {
   id: string
@@ -12,11 +14,12 @@ export interface ScenarioTrack {
   id: string
   title: string
   description: string
+  icon: string
   accent: string
   scenarios: Scenario[]
 }
 
-const levels: ScenarioLevel[] = ['Beginner', 'Beginner', 'Intermediate', 'Intermediate', 'Advanced']
+const levelCycle: ScenarioLevel[] = ['Beginner', 'Easy', 'Medium', 'Hard', 'Expert']
 
 function createScenarios(trackId: string, topics: Array<[string, string]>): Scenario[] {
   return topics.map(([title, prompt], index) => ({
@@ -24,13 +27,13 @@ function createScenarios(trackId: string, topics: Array<[string, string]>): Scen
     title,
     prompt,
     duration: index % 3 === 0 ? 60 : index % 3 === 1 ? 90 : 120,
-    level: levels[index % levels.length],
+    level: levelCycle[index % levelCycle.length],
   }))
 }
 
 export const scenarioTracks: ScenarioTrack[] = [
   {
-    id: 'interview', title: 'Interview', description: 'Turn nerves into clear, memorable answers.', accent: 'from-blue-500 to-cyan-300',
+    id: 'interview', title: 'Interview', icon: '💼', description: 'Turn nerves into clear, memorable answers.', accent: 'from-blue-500 to-cyan-300',
     scenarios: createScenarios('interview', [
       ['Tell me about yourself', 'You are meeting an HR interviewer. Give a clear 60-second introduction covering who you are, your strengths, and your goal.'],
       ['Why this role?', 'Explain why you want this role and how your skills can help the company.'],
@@ -50,12 +53,12 @@ export const scenarioTracks: ScenarioTrack[] = [
     ]),
   },
   {
-    id: 'presentation', title: 'PPT Presentation', description: 'Present ideas with structure and presence.', accent: 'from-violet-500 to-fuchsia-300',
+    id: 'presentation', title: 'PPT Presentation', icon: '📊', description: 'Present ideas with structure and presence.', accent: 'from-violet-500 to-fuchsia-300',
     scenarios: createScenarios('presentation', [
       ['Open a class presentation', 'Open a presentation on a topic of your choice with a hook, purpose, and agenda.'],
       ['Explain one slide', 'Explain a data-heavy slide in simple language to classmates.'],
       ['Present project results', 'Present your project outcome: goal, work done, and result.'],
-      ['Introduce a team', 'Introduce your project team and explain each member’s contribution.'],
+      ['Introduce a team', 'Introduce your project team and explain each member\u2019s contribution.'],
       ['Product demo', 'Present a new product demo clearly to an audience.'],
       ['College seminar', 'Deliver the opening minute of a college seminar.'],
       ['Business update', 'Give a concise weekly update to your manager and teammates.'],
@@ -70,7 +73,7 @@ export const scenarioTracks: ScenarioTrack[] = [
     ]),
   },
   {
-    id: 'founder', title: 'Founder Pitch', description: 'Make your idea impossible to ignore.', accent: 'from-amber-400 to-orange-500',
+    id: 'founder', title: 'Founders', icon: '🚀', description: 'Make your idea impossible to ignore.', accent: 'from-amber-400 to-orange-500',
     scenarios: createScenarios('founder', [
       ['30-second elevator pitch', 'Pitch your startup in 30 seconds: problem, solution, and who it serves.'],
       ['The problem', 'Explain a painful customer problem with a relatable real-world example.'],
@@ -90,49 +93,152 @@ export const scenarioTracks: ScenarioTrack[] = [
     ]),
   },
   {
-    id: 'group-discussion', title: 'Group Discussion', description: 'Contribute clearly and build on ideas.', accent: 'from-emerald-400 to-teal-300',
-    scenarios: createScenarios('group-discussion', [
-      ['Start a discussion', 'Open a group discussion on whether AI helps students.'], ['Build on an idea', 'Respectfully build on a teammate’s point about remote work.'], ['Disagree politely', 'Disagree with a point while keeping the conversation constructive.'], ['Bring in a quiet member', 'Invite a quiet group member to share their view.'], ['Summarise viewpoints', 'Summarise two opposing views fairly.'], ['Timekeeper role', 'Help a group stay focused when time is running out.'], ['College attendance', 'Discuss whether college attendance should be compulsory.'], ['Social media debate', 'Discuss whether social media does more harm than good.'], ['Climate action', 'Argue for one practical climate action universities can take.'], ['Online vs offline learning', 'Present your position on online versus classroom learning.'], ['Team conflict', 'Help a team reach agreement after a disagreement.'], ['Prioritise options', 'Help choose the best of three project ideas.'], ['Evidence-based point', 'Make a strong point using an example or evidence.'], ['Counter argument', 'Challenge an argument with a clear counterpoint.'], ['Close the discussion', 'Conclude a group discussion with the best shared recommendation.'],
+    id: 'students', title: 'Students', icon: '🎓', description: 'Speak up in class, viva, and campus life.', accent: 'from-emerald-400 to-teal-300',
+    scenarios: createScenarios('students', [
+      ['Start a discussion', 'Open a group discussion on whether AI helps students.'],
+      ['Build on an idea', 'Respectfully build on a teammate\u2019s point about remote work.'],
+      ['Disagree politely', 'Disagree with a point while keeping the conversation constructive.'],
+      ['Bring in a quiet member', 'Invite a quiet group member to share their view.'],
+      ['Summarise viewpoints', 'Summarise two opposing views fairly.'],
+      ['Timekeeper role', 'Help a group stay focused when time is running out.'],
+      ['College attendance', 'Discuss whether college attendance should be compulsory.'],
+      ['Social media debate', 'Discuss whether social media does more harm than good.'],
+      ['Climate action', 'Argue for one practical climate action universities can take.'],
+      ['Online vs offline learning', 'Present your position on online versus classroom learning.'],
+      ['Team conflict', 'Help a team reach agreement after a disagreement.'],
+      ['Prioritise options', 'Help choose the best of three project ideas.'],
+      ['Evidence-based point', 'Make a strong point using an example or evidence.'],
+      ['Counter argument', 'Challenge an argument with a clear counterpoint.'],
+      ['Close the discussion', 'Conclude a group discussion with the best shared recommendation.'],
     ]),
   },
   {
-    id: 'public-speaking', title: 'Public Speaking', description: 'Own the room, one sentence at a time.', accent: 'from-rose-500 to-pink-300',
+    id: 'public-speaking', title: 'Public Speaking', icon: '🎙️', description: 'Own the room, one sentence at a time.', accent: 'from-rose-500 to-pink-300',
     scenarios: createScenarios('public-speaking', [
-      ['College introduction', 'Introduce yourself confidently to a new college class.'], ['Welcome speech', 'Welcome guests to a college event.'], ['Vote of thanks', 'Give a warm vote of thanks after an event.'], ['Motivational speech', 'Motivate classmates before an important exam.'], ['Festival speech', 'Give a short speech at a cultural celebration.'], ['Award acceptance', 'Accept an award with gratitude and confidence.'], ['Host an event', 'Open an event as the host and energise the room.'], ['Social cause speech', 'Speak about a social cause you care about.'], ['Story with a lesson', 'Tell a personal story with a clear lesson.'], ['Impromptu topic', 'Speak for one minute on: The power of small habits.'], ['Farewell speech', 'Give a meaningful farewell speech for classmates.'], ['Welcome new students', 'Welcome first-year students to campus.'], ['Persuade an audience', 'Persuade an audience to volunteer for a community project.'], ['Toast speech', 'Give a short, warm celebratory toast.'], ['Keynote opening', 'Open a keynote speech on the future of work.'],
+      ['College introduction', 'Introduce yourself confidently to a new college class.'],
+      ['Welcome speech', 'Welcome guests to a college event.'],
+      ['Vote of thanks', 'Give a warm vote of thanks after an event.'],
+      ['Motivational speech', 'Motivate classmates before an important exam.'],
+      ['Festival speech', 'Give a short speech at a cultural celebration.'],
+      ['Award acceptance', 'Accept an award with gratitude and confidence.'],
+      ['Host an event', 'Open an event as the host and energise the room.'],
+      ['Social cause speech', 'Speak about a social cause you care about.'],
+      ['Story with a lesson', 'Tell a personal story with a clear lesson.'],
+      ['Impromptu topic', 'Speak for one minute on: The power of small habits.'],
+      ['Farewell speech', 'Give a meaningful farewell speech for classmates.'],
+      ['Welcome new students', 'Welcome first-year students to campus.'],
+      ['Persuade an audience', 'Persuade an audience to volunteer for a community project.'],
+      ['Toast speech', 'Give a short, warm celebratory toast.'],
+      ['Keynote opening', 'Open a keynote speech on the future of work.'],
     ]),
   },
   {
-    id: 'networking', title: 'Networking', description: 'Start conversations that open doors.', accent: 'from-sky-400 to-indigo-400',
+    id: 'networking', title: 'Networking', icon: '🤝', description: 'Start conversations that open doors.', accent: 'from-sky-400 to-indigo-400',
     scenarios: createScenarios('networking', [
-      ['Meet a stranger', 'Start a natural conversation with someone at a professional event.'], ['Introduce your work', 'Explain what you do in a clear, friendly way.'], ['Ask for advice', 'Ask a senior professional for career advice.'], ['Follow-up after event', 'Record a warm follow-up message after meeting someone.'], ['Find common ground', 'Build rapport with a professional you just met.'], ['Request a referral', 'Respectfully ask for guidance about a referral.'], ['Coffee chat opening', 'Open a 15-minute coffee chat with a professional.'], ['College alumni chat', 'Introduce yourself to an alumnus and ask a thoughtful question.'], ['Conference conversation', 'Start a conversation after a conference session.'], ['Explain your interest', 'Explain why you are interested in someone’s industry.'], ['End gracefully', 'End a networking conversation politely while keeping the door open.'], ['LinkedIn voice note', 'Record a concise LinkedIn introduction voice note.'], ['Ask about their journey', 'Ask a professional about their career journey.'], ['Share your portfolio', 'Introduce your portfolio or project without overselling.'], ['Reconnect', 'Reconnect with a former colleague after a long time.'],
+      ['Meet a stranger', 'Start a natural conversation with someone at a professional event.'],
+      ['Introduce your work', 'Explain what you do in a clear, friendly way.'],
+      ['Ask for advice', 'Ask a senior professional for career advice.'],
+      ['Follow-up after event', 'Record a warm follow-up message after meeting someone.'],
+      ['Find common ground', 'Build rapport with a professional you just met.'],
+      ['Request a referral', 'Respectfully ask for guidance about a referral.'],
+      ['Coffee chat opening', 'Open a 15-minute coffee chat with a professional.'],
+      ['College alumni chat', 'Introduce yourself to an alumnus and ask a thoughtful question.'],
+      ['Conference conversation', 'Start a conversation after a conference session.'],
+      ['Explain your interest', 'Explain why you are interested in someone\u2019s industry.'],
+      ['End gracefully', 'End a networking conversation politely while keeping the door open.'],
+      ['LinkedIn voice note', 'Record a concise LinkedIn introduction voice note.'],
+      ['Ask about their journey', 'Ask a professional about their career journey.'],
+      ['Share your portfolio', 'Introduce your portfolio or project without overselling.'],
+      ['Reconnect', 'Reconnect with a former colleague after a long time.'],
     ]),
   },
   {
-    id: 'daily-conversation', title: 'Daily Conversation', description: 'Feel comfortable in everyday English.', accent: 'from-lime-400 to-green-500',
+    id: 'daily-conversation', title: 'Daily Conversation', icon: '💬', description: 'Feel comfortable in everyday English.', accent: 'from-lime-400 to-green-500',
     scenarios: createScenarios('daily-conversation', [
-      ['Order at a cafe', 'Order food politely and ask one follow-up question.'], ['Ask for directions', 'Ask a stranger for directions and confirm the route.'], ['Doctor appointment', 'Explain your symptoms clearly to a doctor.'], ['Talk to a teacher', 'Ask your teacher for help with an assignment.'], ['Roommate issue', 'Discuss a small issue with your roommate calmly.'], ['Phone call enquiry', 'Call a service provider to ask about an appointment.'], ['Return an item', 'Explain a problem while returning a product politely.'], ['Make a plan', 'Invite a friend and make a plan for the weekend.'], ['Introduce a friend', 'Introduce two friends who have not met before.'], ['Apologise professionally', 'Apologise for arriving late and explain briefly.'], ['Ask for clarification', 'Ask someone to repeat or explain something politely.'], ['Give instructions', 'Explain to a friend how to reach your home.'], ['Small talk', 'Make small talk with a person you meet in a lift.'], ['Share an opinion', 'Share your opinion on a recent movie or book.'], ['Handle a misunderstanding', 'Clear up a small misunderstanding with a friend.'],
+      ['Order at a cafe', 'Order food politely and ask one follow-up question.'],
+      ['Ask for directions', 'Ask a stranger for directions and confirm the route.'],
+      ['Doctor appointment', 'Explain your symptoms clearly to a doctor.'],
+      ['Talk to a teacher', 'Ask your teacher for help with an assignment.'],
+      ['Roommate issue', 'Discuss a small issue with your roommate calmly.'],
+      ['Phone call enquiry', 'Call a service provider to ask about an appointment.'],
+      ['Return an item', 'Explain a problem while returning a product politely.'],
+      ['Make a plan', 'Invite a friend and make a plan for the weekend.'],
+      ['Introduce a friend', 'Introduce two friends who have not met before.'],
+      ['Apologise professionally', 'Apologise for arriving late and explain briefly.'],
+      ['Ask for clarification', 'Ask someone to repeat or explain something politely.'],
+      ['Give instructions', 'Explain to a friend how to reach your home.'],
+      ['Small talk', 'Make small talk with a person you meet in a lift.'],
+      ['Share an opinion', 'Share your opinion on a recent movie or book.'],
+      ['Handle a misunderstanding', 'Clear up a small misunderstanding with a friend.'],
     ]),
   },
   {
-    id: 'sales', title: 'Sales Call', description: 'Listen, explain value, and close with care.', accent: 'from-orange-400 to-red-400',
+    id: 'sales', title: 'Sales Call', icon: '📞', description: 'Listen, explain value, and close with care.', accent: 'from-orange-400 to-red-400',
     scenarios: createScenarios('sales', [
-      ['Cold call opening', 'Open a cold call in a respectful, value-focused way.'], ['Discover needs', 'Ask questions to understand a customer’s need.'], ['Explain value', 'Explain how your product solves one customer problem.'], ['Handle price objection', 'Respond when a customer says the price is too high.'], ['Ask for the sale', 'Ask for the next step or close clearly without pressure.'], ['Product walkthrough', 'Give a concise product walkthrough to a prospect.'], ['Follow-up call', 'Follow up after a product demo.'], ['Compare competitors', 'Explain your advantage when a customer mentions a competitor.'], ['Upsell ethically', 'Suggest a useful upgrade based on a customer need.'], ['Customer success check-in', 'Check in with an existing customer and offer help.'], ['Handle rejection', 'Respond gracefully when a prospect says no.'], ['Renewal conversation', 'Discuss a subscription renewal with a customer.'], ['Qualify a lead', 'Ask three questions to see if a lead is a good fit.'], ['Present ROI', 'Explain the return on investment in simple terms.'], ['Executive pitch', 'Present your solution to a busy decision maker in 90 seconds.'],
+      ['Cold call opening', 'Open a cold call in a respectful, value-focused way.'],
+      ['Discover needs', 'Ask questions to understand a customer\u2019s need.'],
+      ['Explain value', 'Explain how your product solves one customer problem.'],
+      ['Handle price objection', 'Respond when a customer says the price is too high.'],
+      ['Ask for the sale', 'Ask for the next step or close clearly without pressure.'],
+      ['Product walkthrough', 'Give a concise product walkthrough to a prospect.'],
+      ['Follow-up call', 'Follow up after a product demo.'],
+      ['Compare competitors', 'Explain your advantage when a customer mentions a competitor.'],
+      ['Upsell ethically', 'Suggest a useful upgrade based on a customer need.'],
+      ['Customer success check-in', 'Check in with an existing customer and offer help.'],
+      ['Handle rejection', 'Respond gracefully when a prospect says no.'],
+      ['Renewal conversation', 'Discuss a subscription renewal with a customer.'],
+      ['Qualify a lead', 'Ask three questions to see if a lead is a good fit.'],
+      ['Present ROI', 'Explain the return on investment in simple terms.'],
+      ['Executive pitch', 'Present your solution to a busy decision maker in 90 seconds.'],
     ]),
   },
   {
-    id: 'debate', title: 'Debate Arena', description: 'Think on your feet and argue with respect.', accent: 'from-red-500 to-orange-300',
+    id: 'debate', title: 'Debate Arena', icon: '⚔️', description: 'Think on your feet and argue with respect.', accent: 'from-red-500 to-orange-300',
     scenarios: createScenarios('debate', [
-      ['AI in education', 'Argue whether AI should be widely used in education.'], ['Four-day work week', 'Support or oppose a four-day work week.'], ['Social media age limit', 'Argue for or against an age limit for social media.'], ['Cashless society', 'Debate whether India should become fully cashless.'], ['Remote work', 'Debate whether remote work improves productivity.'], ['Space exploration', 'Defend investment in space exploration.'], ['College degrees', 'Debate whether a college degree is necessary for success.'], ['Electric vehicles', 'Argue whether electric vehicles should be subsidised.'], ['Uniforms in college', 'Support or oppose uniforms in college.'], ['Influencers', 'Debate whether influencers are positive role models.'], ['Exam system', 'Debate whether exams truly measure learning.'], ['Privacy vs safety', 'Balance online privacy and public safety.'], ['Startup funding', 'Argue whether founders should bootstrap before raising money.'], ['English in education', 'Debate the role of English in Indian education.'], ['Closing rebuttal', 'Give a concise closing rebuttal to an opposing argument.'],
+      ['AI in education', 'Argue whether AI should be widely used in education.'],
+      ['Four-day work week', 'Support or oppose a four-day work week.'],
+      ['Social media age limit', 'Argue for or against an age limit for social media.'],
+      ['Cashless society', 'Debate whether India should become fully cashless.'],
+      ['Remote work', 'Debate whether remote work improves productivity.'],
+      ['Space exploration', 'Defend investment in space exploration.'],
+      ['College degrees', 'Debate whether a college degree is necessary for success.'],
+      ['Electric vehicles', 'Argue whether electric vehicles should be subsidised.'],
+      ['Uniforms in college', 'Support or oppose uniforms in college.'],
+      ['Influencers', 'Debate whether influencers are positive role models.'],
+      ['Exam system', 'Debate whether exams truly measure learning.'],
+      ['Privacy vs safety', 'Balance online privacy and public safety.'],
+      ['Startup funding', 'Argue whether founders should bootstrap before raising money.'],
+      ['English in education', 'Debate the role of English in Indian education.'],
+      ['Closing rebuttal', 'Give a concise closing rebuttal to an opposing argument.'],
     ]),
   },
   {
-    id: 'storytelling', title: 'Storytelling', description: 'Make personal experiences stay with people.', accent: 'from-purple-500 to-violet-300',
+    id: 'storytelling', title: 'Storytelling', icon: '📖', description: 'Make personal experiences stay with people.', accent: 'from-purple-500 to-violet-300',
     scenarios: createScenarios('storytelling', [
-      ['A turning point', 'Tell a story about a moment that changed your thinking.'], ['A failure', 'Tell a story about a failure and what it taught you.'], ['A proud moment', 'Tell a story about a moment you felt proud.'], ['A difficult decision', 'Describe a difficult decision and how you made it.'], ['Team success', 'Tell a story about succeeding with a team.'], ['Unexpected kindness', 'Share a story about unexpected kindness.'], ['First day memory', 'Tell a vivid story about your first day in a new place.'], ['Travel mishap', 'Tell a light story about a travel mishap.'], ['Solve a problem', 'Tell a story about solving an unexpected problem.'], ['Inspiration', 'Tell a story about someone who inspired you.'], ['Learning a skill', 'Describe the journey of learning a difficult skill.'], ['A missed opportunity', 'Share a story about a missed opportunity and the lesson.'], ['A meaningful place', 'Describe a place that has special meaning to you.'], ['Your future story', 'Tell a story set five years in your future.'], ['One-minute story', 'Tell a complete story in one minute with a beginning, middle, and end.'],
+      ['A turning point', 'Tell a story about a moment that changed your thinking.'],
+      ['A failure', 'Tell a story about a failure and what it taught you.'],
+      ['A proud moment', 'Tell a story about a moment you felt proud.'],
+      ['A difficult decision', 'Describe a difficult decision and how you made it.'],
+      ['Team success', 'Tell a story about succeeding with a team.'],
+      ['Unexpected kindness', 'Share a story about unexpected kindness.'],
+      ['First day memory', 'Tell a vivid story about your first day in a new place.'],
+      ['Travel mishap', 'Tell a light story about a travel mishap.'],
+      ['Solve a problem', 'Tell a story about solving an unexpected problem.'],
+      ['Inspiration', 'Tell a story about someone who inspired you.'],
+      ['Learning a skill', 'Describe the journey of learning a difficult skill.'],
+      ['A missed opportunity', 'Share a story about a missed opportunity and the lesson.'],
+      ['A meaningful place', 'Describe a place that has special meaning to you.'],
+      ['Your future story', 'Tell a story set five years in your future.'],
+      ['One-minute story', 'Tell a complete story in one minute with a beginning, middle, and end.'],
     ]),
   },
 ]
 
 export const allScenarios = scenarioTracks.flatMap((track) =>
-  track.scenarios.map((scenario) => ({ ...scenario, trackId: track.id, trackTitle: track.title, accent: track.accent }))
+  track.scenarios.map((scenario) => ({ ...scenario, trackId: track.id, trackTitle: track.title, trackIcon: track.icon, accent: track.accent }))
 )
+
+/** Look up a single scenario by its composite id (e.g. "interview-3") */
+export function getScenarioById(id: string) {
+  return allScenarios.find((s) => s.id === id) ?? null
+}
