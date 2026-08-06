@@ -36,7 +36,7 @@ export default function OnboardingPage() {
         })
     }
 
-    router.push('/app/practice')
+    router.push('/practice')
     setLoading(false)
   }
 

@@ -1,19 +1,158 @@
 import Groq from 'groq-sdk'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 })
 
+type CoachScores = {
+  clarity: number
+  fluency: number
+  confidence: number
+  structure: number
+  relevance: number
+}
+
+type CoachFeedbackItem = {
+  title: string
+  explanation: string
+  technique: string
+}
+
+type CoachResult = {
+  transcript: string
+  score: number
+  encouragement: string
+  feedback: CoachFeedbackItem[]
+  scores: CoachScores
+}
+
+function getFormValue(formData: FormData, key: string) {
+  const value = formData.get(key)
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function isCoachResult(value: unknown): value is CoachResult {
+  if (!value || typeof value !== 'object') return false
+  const result = value as Partial<CoachResult>
+  return (
+    typeof result.transcript === 'string' &&
+    typeof result.score === 'number' &&
+    typeof result.encouragement === 'string' &&
+    Array.isArray(result.feedback) &&
+    !!result.scores &&
+    typeof result.scores.clarity === 'number' &&
+    typeof result.scores.fluency === 'number' &&
+    typeof result.scores.confidence === 'number' &&
+    typeof result.scores.structure === 'number' &&
+    typeof result.scores.relevance === 'number'
+  )
+}
+
+async function findOrCreateScenario(
+  supabase: SupabaseClient,
+  details: {
+    slug: string
+    title: string
+    prompt: string
+    track: string
+    level: string
+    duration: number
+  }
+) {
+  if (!details.slug) return null
+
+  const { data, error } = await supabase
+    .from('scenarios')
+    .upsert(
+      {
+        slug: details.slug,
+        title: details.title,
+        description: details.prompt,
+        category: details.track,
+        track: details.track,
+        difficulty: details.level,
+        time_limit_sec: details.duration,
+        is_seed: true,
+      },
+      { onConflict: 'slug' }
+    )
+    .select('id')
+    .single()
+
+  if (error) {
+    console.error('Scenario save error:', error.message)
+    return null
+  }
+
+  return data
+}
+
+async function updateScenarioCompletion(
+  supabase: SupabaseClient,
+  userId: string,
+  scenarioId: string,
+  score: number
+) {
+  const { data: existing, error } = await supabase
+    .from('scenario_completions')
+    .select('id, best_score, total_attempts')
+    .eq('user_id', userId)
+    .eq('scenario_id', scenarioId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Scenario completion lookup error:', error.message)
+    return
+  }
+
+  if (existing) {
+    const { error: updateError } = await supabase
+      .from('scenario_completions')
+      .update({
+        best_score: Math.max(existing.best_score ?? 0, score),
+        total_attempts: (existing.total_attempts ?? 0) + 1,
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', existing.id)
+
+    if (updateError) console.error('Scenario completion update error:', updateError.message)
+    return
+  }
+
+  const { error: insertError } = await supabase.from('scenario_completions').insert({
+    user_id: userId,
+    scenario_id: scenarioId,
+    best_score: score,
+    total_attempts: 1,
+  })
+
+  if (insertError) console.error('Scenario completion insert error:', insertError.message)
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData()
-    const audio = formData.get('audio') as Blob
-    const scenario = formData.get('scenario') as string
+    if (!process.env.GROQ_API_KEY) {
+      return NextResponse.json(
+        { error: 'AI feedback is not configured yet. Add GROQ_API_KEY to enable coaching.' },
+        { status: 503 }
+      )
+    }
 
-    if (!audio) {
-      return NextResponse.json({ error: 'No audio' }, { status: 400 })
+    const formData = await request.formData()
+    const audio = formData.get('audio')
+    const scenario = getFormValue(formData, 'scenario')
+    const scenarioSlug = getFormValue(formData, 'scenarioId')
+    const scenarioTitle = getFormValue(formData, 'scenarioTitle') || 'Practice Session'
+    const scenarioTrack = getFormValue(formData, 'scenarioTrack') || 'practice'
+    const scenarioLevel = getFormValue(formData, 'scenarioLevel') || 'Beginner'
+    const scenarioDuration = Number(getFormValue(formData, 'scenarioDuration')) || 60
+
+    if (!(audio instanceof Blob) || !scenario?.trim()) {
+      return NextResponse.json({ error: 'Audio and scenario are required.' }, { status: 400 })
     }
 
     // Step 1 — Speech to Text
@@ -86,18 +225,33 @@ Analyze this response and return JSON feedback.`
 
     const raw = feedback.choices[0]?.message?.content || '{}'
     const clean = raw.replace(/```json|```/g, '').trim()
-    const result = JSON.parse(clean)
+    const result: unknown = JSON.parse(clean)
+
+    if (!isCoachResult(result)) {
+      throw new Error('The coach returned an incomplete response. Please try again.')
+    }
 
     // Step 3 — Save to Database
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (user) {
-      // Session save karo
+      const savedScenario = process.env.SUPABASE_SERVICE_ROLE_KEY
+        ? await findOrCreateScenario(createAdminClient(), {
+            slug: scenarioSlug,
+            title: scenarioTitle,
+            prompt: scenario,
+            track: scenarioTrack,
+            level: scenarioLevel,
+            duration: scenarioDuration,
+          })
+        : null
+
       const { data: session } = await supabase
         .from('sessions')
         .insert({
           user_id: user.id,
+          scenario_id: savedScenario?.id ?? null,
           status: 'complete',
           transcript: result.transcript,
         })
@@ -125,11 +279,9 @@ Analyze this response and return JSON feedback.`
               session_id: session.id,
               user_id: user.id,
               rank: index + 1,
-              issue_type: 'general',
               issue_title: item.title,
               explanation: item.explanation,
               technique: item.technique,
-              severity: 'medium',
               was_shown: true,
               is_resolved: false,
             })
@@ -144,7 +296,10 @@ Analyze this response and return JSON feedback.`
           }
         }
 
-        // Streak update karo
+        if (savedScenario?.id) {
+          await updateScenarioCompletion(supabase, user.id, savedScenario.id, result.score)
+        }
+
         const today = new Date().toISOString().split('T')[0]
         const { data: streak } = await supabase
           .from('streaks')
@@ -179,8 +334,9 @@ Analyze this response and return JSON feedback.`
 
     return NextResponse.json({ success: true, ...result })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Analysis error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Unable to analyse this recording. Please try again.'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

@@ -26,9 +26,21 @@ interface FeedbackResult {
 
 interface RecorderProps {
   scenario: string
+  scenarioId?: string
+  scenarioTitle?: string
+  scenarioTrack?: string
+  scenarioLevel?: string
+  maxDuration?: number
 }
 
-export default function Recorder({ scenario }: RecorderProps) {
+export default function Recorder({
+  scenario,
+  scenarioId,
+  scenarioTitle,
+  scenarioTrack,
+  scenarioLevel,
+  maxDuration = 60,
+}: RecorderProps) {
   const [state, setState] = useState<RecorderState>('idle')
   const [seconds, setSeconds] = useState(0)
   const [result, setResult] = useState<FeedbackResult | null>(null)
@@ -97,16 +109,16 @@ export default function Recorder({ scenario }: RecorderProps) {
 
       timerRef.current = setInterval(() => {
         setSeconds(s => {
-          if (s >= 59) {
+          if (s >= maxDuration - 1) {
             stopRecording()
-            return 60
+            return maxDuration
           }
           return s + 1
         })
       }, 1000)
 
-    } catch (err: any) {
-      if (err.name === 'NotAllowedError') {
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === 'NotAllowedError') {
         setError('Mic access denied. Please allow microphone permission in browser settings.')
       } else {
         setError('Could not access microphone. Please check your device.')
@@ -133,6 +145,11 @@ export default function Recorder({ scenario }: RecorderProps) {
       const formData = new FormData()
       formData.append('audio', blob, 'recording.webm')
       formData.append('scenario', scenario)
+      if (scenarioId) formData.append('scenarioId', scenarioId)
+      if (scenarioTitle) formData.append('scenarioTitle', scenarioTitle)
+      if (scenarioTrack) formData.append('scenarioTrack', scenarioTrack)
+      if (scenarioLevel) formData.append('scenarioLevel', scenarioLevel)
+      formData.append('scenarioDuration', String(maxDuration))
 
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -150,7 +167,7 @@ export default function Recorder({ scenario }: RecorderProps) {
       setResult(data)
       setState('done')
 
-    } catch (err) {
+    } catch {
       setError('Analysis failed. Please check your internet and try again.')
       setState('idle')
     }
@@ -239,7 +256,7 @@ export default function Recorder({ scenario }: RecorderProps) {
 
           {/* Label */}
           <p className="text-xs text-white/40">
-            {state === 'idle' && 'Tap mic and speak for at least 10 seconds'}
+            {state === 'idle' && `Tap mic and speak for up to ${maxDuration} seconds`}
             {state === 'recording' && 'Tap stop when you are done speaking'}
           </p>
 
