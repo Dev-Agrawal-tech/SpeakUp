@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -8,13 +8,46 @@ import {
   ChevronRight, Sparkles, Filter
 } from 'lucide-react'
 import { scenarioTracks, LEVELS, type ScenarioLevel } from '@/lib/scenarios/catalogue'
+import { createClient } from '@/lib/supabase/client'
 
 export default function DashboardPage() {
   const router = useRouter()
+  const [displayName, setDisplayName] = useState('Student')
   const [selectedTrackId, setSelectedTrackId] = useState(scenarioTracks[0].id)
   const [selectedLevel, setSelectedLevel] = useState<ScenarioLevel | 'All'>('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    const supabase = createClient()
+
+    const loadUserName = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('users')
+        .select('name')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      const name = profile?.name ||
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name ||
+        user.email?.split('@')[0] ||
+        'Student'
+
+      if (active) setDisplayName(name)
+    }
+
+    void loadUserName()
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   const track = useMemo(
     () => scenarioTracks.find((t) => t.id === selectedTrackId) ?? scenarioTracks[0],
@@ -107,10 +140,10 @@ export default function DashboardPage() {
         <div className="px-4 py-4 border-t border-white/[0.06]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-xs font-bold">
-              S
+              {displayName.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium truncate">Student</p>
+              <p className="text-xs font-medium truncate">{displayName}</p>
               <p className="text-[10px] text-white/30">Free Plan</p>
             </div>
             <button className="text-white/25 hover:text-white/60 transition">
