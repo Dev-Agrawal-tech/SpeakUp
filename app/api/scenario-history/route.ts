@@ -1,6 +1,25 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse, type NextRequest } from 'next/server'
 
+interface ScoreRow {
+  composite?: number | null
+}
+
+interface SessionFeedbackRow {
+  id: string
+  issue_title?: string | null
+  explanation?: string | null
+  technique?: string | null
+  is_resolved?: boolean | null
+}
+
+interface AttemptFeedbackRow {
+  id: string
+  problem_text?: string | null
+  solution_text?: string | null
+  status?: string | null
+}
+
 /**
  * GET /api/scenario-history?scenarioId=founder-1
  * Returns past attempts for the user on a specific scenario with AI feedback and scores over time.
@@ -57,8 +76,10 @@ export async function GET(request: NextRequest) {
         scenarioId: s.scenario_id,
         transcript: s.transcript,
         createdAt: s.created_at,
-        score: Array.isArray(s.scores) ? s.scores[0]?.composite ?? 0 : (s.scores as any)?.composite ?? 0,
-        feedback: (s.feedback_items || []).map((f: any) => ({
+        score: Array.isArray(s.scores)
+          ? (s.scores[0] as ScoreRow | undefined)?.composite ?? 0
+          : (s.scores as ScoreRow | null)?.composite ?? 0,
+        feedback: (s.feedback_items as SessionFeedbackRow[] || []).map((f) => ({
           id: f.id,
           problemText: f.issue_title,
           solutionText: `${f.explanation || ''} ${f.technique || ''}`.trim(),
@@ -101,7 +122,7 @@ export async function GET(request: NextRequest) {
       transcript: a.transcript,
       createdAt: a.created_at,
       score: a.score ?? 0,
-      feedback: (a.attempt_feedback || []).map((f: any) => ({
+      feedback: (a.attempt_feedback as AttemptFeedbackRow[] || []).map((f) => ({
         id: f.id,
         problemText: f.problem_text,
         solutionText: f.solution_text,

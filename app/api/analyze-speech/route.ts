@@ -1,7 +1,6 @@
 import Groq from 'groq-sdk'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -25,6 +24,12 @@ export interface AnalyzeSpeechResult {
     structure: number
     relevance: number
   }
+}
+
+interface GuestUnresolvedIssue {
+  id?: string
+  problemText?: string
+  solutionText?: string
 }
 
 /**
@@ -110,7 +115,7 @@ export async function POST(request: NextRequest) {
         }
       }
     } else if (Array.isArray(guestUnresolvedIssues)) {
-      previousUnresolvedIssues = guestUnresolvedIssues.map((issue: any) => ({
+      previousUnresolvedIssues = (guestUnresolvedIssues as GuestUnresolvedIssue[]).map((issue) => ({
         id: issue.id || 'guest-issue',
         problemText: issue.problemText || '',
         solutionText: issue.solutionText || '',
@@ -229,7 +234,7 @@ RETURN ONLY VALID JSON matching this exact schema (no markdown formatting, no te
       let savedAttemptId: string | null = null
 
       // Save into sessions table
-      const { data: sessionData, error: sessionErr } = await supabase
+      const { data: sessionData } = await supabase
         .from('sessions')
         .insert({
           user_id: userId,
