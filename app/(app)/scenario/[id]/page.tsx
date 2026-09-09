@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   ChevronLeft, Clock3, Mic, Square, Send,
-  AlertCircle, CheckCircle2, Loader2, History,
+  AlertCircle, Loader2, History,
   X, Sparkles, TrendingUp, RefreshCw
 } from 'lucide-react'
 import { getScenarioById } from '@/lib/scenarios/catalogue'
@@ -40,6 +40,21 @@ interface AttemptHistoryItem {
   feedback: FeedbackItem[]
 }
 
+const getLocalHistory = (scenarioId: string): AttemptHistoryItem[] => {
+  if (typeof window === 'undefined' || !scenarioId) return []
+
+  const stored = localStorage.getItem(`speakup_history_${scenarioId}`)
+  if (!stored) return []
+
+  try {
+    const parsed: unknown = JSON.parse(stored)
+    return Array.isArray(parsed) ? parsed as AttemptHistoryItem[] : []
+  } catch (error) {
+    console.error('Error parsing local history:', error)
+    return []
+  }
+}
+
 export default function ScenarioPage() {
   const params = useParams()
   const router = useRouter()
@@ -55,14 +70,19 @@ export default function ScenarioPage() {
 
   // Scenario History Drawer state
   const [historyOpen, setHistoryOpen] = useState(false)
-  const [historyItems, setHistoryItems] = useState<AttemptHistoryItem[]>([])
+  const [historyItems, setHistoryItems] = useState<AttemptHistoryItem[]>(() => getLocalHistory(scenarioId))
   const [loadingHistory, setLoadingHistory] = useState(false)
 
-  const recognitionRef = useRef<any>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const streamRef = useRef<MediaStream | null>(null)
+  const viewStateRef = useRef<ViewState>('ready')
+
+  useEffect(() => {
+    viewStateRef.current = viewState
+  }, [viewState])
 
   // Clean up on unmount
   useEffect(() => {
@@ -77,46 +97,53 @@ export default function ScenarioPage() {
     }
   }, [])
 
-  // Timer countdown
-  useEffect(() => {
-    if (viewState === 'recording' && timeLeft > 0) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            stopRecording()
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-      return () => {
-        if (timerRef.current) clearInterval(timerRef.current)
-      }
-    }
-  }, [viewState])
-
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60)
     const sec = s % 60
     return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
   }
 
-  // Load local history on mount to ensure instant responsiveness
+  const stopRecording = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop() } catch {}
+      recognitionRef.current = null
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop()
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+    }
+    setInterimText('')
+    setViewState('review')
+  }, [])
+
+  // Timer countdown
   useEffect(() => {
-    if (typeof window !== 'undefined' && scenarioId) {
-      const stored = localStorage.getItem(`speakup_history_${scenarioId}`)
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          if (Array.isArray(parsed)) {
-            setHistoryItems(parsed)
-          }
-        } catch (e) {
-          console.error('Error parsing local history:', e)
+    if (viewState !== 'recording') return
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          stopRecording()
+          return 0
         }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
       }
     }
-  }, [scenarioId])
+  }, [viewState, stopRecording])
 
   // Fetch History for drawer
   const fetchHistory = useCallback(async () => {
@@ -199,7 +226,7 @@ export default function ScenarioPage() {
         recognition.interimResults = true
         recognition.lang = 'en-IN'
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
           let finalText = ''
           let interim = ''
           for (let i = 0; i < event.results.length; i++) {
@@ -214,14 +241,14 @@ export default function ScenarioPage() {
           setInterimText(interim)
         }
 
-        recognition.onerror = (event: any) => {
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
           if (event.error !== 'no-speech' && event.error !== 'aborted') {
             console.warn('Speech recognition error:', event.error)
           }
         }
 
         recognition.onend = () => {
-          if (viewState === 'recording') {
+          if (viewStateRef.current === 'recording') {
             try { recognition.start() } catch {}
           }
         }
@@ -239,26 +266,6 @@ export default function ScenarioPage() {
       }
     }
   }, [scenario])
-
-  const stopRecording = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-      timerRef.current = null
-    }
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop() } catch {}
-      recognitionRef.current = null
-    }
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop()
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop())
-      streamRef.current = null
-    }
-    setInterimText('')
-    setViewState('review')
-  }, [])
 
   // Submit to /api/analyze-speech
   const handleSubmit = async () => {
@@ -684,7 +691,7 @@ export default function ScenarioPage() {
 
                       {/* Transcript */}
                       <p className="text-xs text-white/50 bg-black/40 p-2.5 rounded-lg border border-white/[0.04] mb-3 leading-relaxed">
-                        "{item.transcript}"
+                        &quot;{item.transcript}&quot;
                       </p>
 
                       {/* Feedback points */}
