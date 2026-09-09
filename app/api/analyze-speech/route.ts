@@ -181,7 +181,7 @@ RETURN ONLY VALID JSON matching this exact schema (no markdown formatting, no te
 
     if (process.env.GROQ_API_KEY) {
       const completion = await groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
+        model: 'openai/gpt-oss-120b',
         messages: [
           { role: 'system', content: systemInstructions },
           { role: 'user', content: promptContext }
