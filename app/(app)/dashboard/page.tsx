@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/client'
 export default function DashboardPage() {
   const router = useRouter()
   const [displayName, setDisplayName] = useState('Student')
+  const [loggingOut, setLoggingOut] = useState(false)
   const [selectedTrackId, setSelectedTrackId] = useState(scenarioTracks[0].id)
   const [selectedLevel, setSelectedLevel] = useState<ScenarioLevel | 'All'>('All')
   const [searchQuery, setSearchQuery] = useState('')
@@ -74,6 +75,22 @@ export default function DashboardPage() {
     Medium: 'bg-amber-500/15 text-amber-400 border-amber-500/20',
     Hard: 'bg-orange-500/15 text-orange-400 border-orange-500/20',
     Expert: 'bg-red-500/15 text-red-400 border-red-500/20',
+  }
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+
+    const supabase = createClient()
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.error('Logout error:', error.message)
+      setLoggingOut(false)
+      return
+    }
+
+    router.replace('/')
+    router.refresh()
   }
 
   return (
@@ -146,7 +163,13 @@ export default function DashboardPage() {
               <p className="text-xs font-medium truncate">{displayName}</p>
               <p className="text-[10px] text-white/30">Free Plan</p>
             </div>
-            <button className="text-white/25 hover:text-white/60 transition">
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              aria-label="Log out"
+              className="text-white/25 hover:text-white/60 transition disabled:cursor-not-allowed disabled:opacity-50"
+            >
               <LogOut className="h-4 w-4" />
             </button>
           </div>
