@@ -27,8 +27,8 @@ export default async function ProgressPage() {
           <div className="text-xl font-bold">
             Speak<span className="text-blue-500">Up</span>
           </div>
-          <Link href="/practice" className="text-sm text-blue-400 hover:text-blue-300">
-            ← Practice
+          <Link href="/dashboard" className="text-sm text-blue-400 hover:text-blue-300">
+            ← Dashboard
           </Link>
         </nav>
         <div className="mx-auto max-w-2xl px-6 py-12 text-center">
@@ -44,8 +44,8 @@ export default async function ProgressPage() {
         <div className="text-xl font-bold">
           Speak<span className="text-blue-500">Up</span>
         </div>
-        <Link href="/practice" className="text-sm text-blue-400 hover:text-blue-300">
-          ← Practice
+        <Link href="/dashboard" className="text-sm text-blue-400 hover:text-blue-300">
+          ← Dashboard
         </Link>
       </nav>
 
