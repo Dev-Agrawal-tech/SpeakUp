@@ -38,7 +38,8 @@ feedback_items, streaks, scenario_completions
 
 ## Features Done
 ✅ Landing page
-✅ Google Auth + Magic Link
+✅ Google Auth + email/password authentication
+✅ Email confirmation and password reset flow
 ✅ Onboarding page
 ✅ Practice page with recorder
 ✅ Groq Whisper STT
@@ -58,6 +59,25 @@ feedback_items, streaks, scenario_completions
 ❌ Improvement tracking attempt vs attempt
 ❌ Email automation (Resend)
 ❌ Analytics (PostHog)
+
+## Authentication Configuration
+
+The application uses Supabase Auth for credentials; passwords are never stored in
+the public `users` table. Configure these settings in the Supabase dashboard:
+
+- Enable email confirmations under Authentication → Providers → Email.
+- Add the local and production callback URLs:
+	- `http://localhost:3000/api/auth/callback`
+	- `https://speak-up-pi.vercel.app/api/auth/callback`
+- Keep Google enabled for OAuth signup and login.
+- Enable leaked-password protection and choose the project's minimum password length.
+
+Current routes:
+
+- `/signup`: name, email, password, and confirmation password.
+- `/login`: email/password login, Google login, and password reset request.
+- `/reset-password`: set a new password from the emailed reset link.
+- `/api/auth/callback`: exchanges confirmation/OAuth/reset codes and redirects to a safe internal route.
 
 ## Design Rules
 - Background: #0A0A0A

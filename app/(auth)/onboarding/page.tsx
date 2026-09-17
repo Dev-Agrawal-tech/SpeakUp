@@ -31,6 +31,7 @@ export default function OnboardingPage() {
           id: user.id,
           email: user.email,
           name: user.user_metadata?.name || user.email?.split('@')[0],
+          username: user.user_metadata?.username || null,
           onboarding_goal: selected,
           plan_type: 'free',
         })

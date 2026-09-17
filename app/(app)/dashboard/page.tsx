@@ -17,6 +17,7 @@ export default function DashboardPage() {
   const [selectedLevel, setSelectedLevel] = useState<ScenarioLevel | 'All'>('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -25,21 +26,24 @@ export default function DashboardPage() {
     const loadUserName = async () => {
       const { data: { user } } = await supabase.auth.getUser()
 
-      if (!user) return
+      if (!user) {
+        window.location.replace('/login')
+        return
+      }
 
       const { data: profile } = await supabase
         .from('users')
-        .select('name')
+        .select('username')
         .eq('id', user.id)
         .maybeSingle()
 
-      const name = profile?.name ||
+      const username = profile?.username ||
         user.user_metadata?.full_name ||
         user.user_metadata?.name ||
         user.email?.split('@')[0] ||
         'Student'
 
-      if (active) setDisplayName(name)
+      if (active) setDisplayName(username)
     }
 
     void loadUserName()
@@ -48,6 +52,13 @@ export default function DashboardPage() {
       active = false
     }
   }, [])
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    window.location.replace('/login')
+  }
 
   const track = useMemo(
     () => scenarioTracks.find((t) => t.id === selectedTrackId) ?? scenarioTracks[0],
@@ -146,7 +157,13 @@ export default function DashboardPage() {
               <p className="text-xs font-medium truncate">{displayName}</p>
               <p className="text-[10px] text-white/30">Free Plan</p>
             </div>
-            <button className="text-white/25 hover:text-white/60 transition">
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              aria-label="Log out"
+              title="Log out"
+              className="text-white/25 hover:text-white/60 disabled:opacity-50 transition"
+            >
               <LogOut className="h-4 w-4" />
             </button>
           </div>
