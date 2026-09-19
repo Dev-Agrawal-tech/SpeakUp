@@ -1,5 +1,14 @@
-   NOTE: This file is an instruction prompt, NOT product documentation.
-   Do not use it as a source for product features, plans, or limits.
+NOTE: This file is an instruction prompt, NOT product documentation.
+Ignore it when searching for product features, plans or limits.
+
+Product docs to read first (source of truth for the product):
+- docs/PROMPT.md
+- docs/_prd_extract/ (extracted text of the PRD)
+- docs/SpeakUp_PRD_v1.0.docx, docs/SpeakUp_PRD_V1_1.docx, docs/SpeakUp_TRD_v1.0.docx
+- docs/SETTINGS_PHASES.md
+- AGENTS.md and CLAUDE.md in the project root
+
+--------------------------------------------------------
 
 I want you to implement a complete, polished SETTINGS SYSTEM for my existing website.
 
