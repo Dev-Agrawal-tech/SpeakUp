@@ -158,11 +158,12 @@ export default function DashboardPage() {
               <p className="text-[10px] text-white/30">Free Plan</p>
             </div>
             <button
+              type="button"
               onClick={handleLogout}
               disabled={loggingOut}
               aria-label="Log out"
               title="Log out"
-              className="text-white/25 hover:text-white/60 disabled:opacity-50 transition"
+              className="text-white/25 hover:text-white/60 transition disabled:cursor-not-allowed disabled:opacity-50"
             >
               <LogOut className="h-4 w-4" />
             </button>
