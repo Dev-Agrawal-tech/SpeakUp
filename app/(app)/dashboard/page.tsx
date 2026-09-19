@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   ArrowRight, Clock3, Layers3, Search, LogOut,
-  ChevronRight, Sparkles, Filter
+  ChevronRight, Sparkles, Filter, Settings
 } from 'lucide-react'
 import { scenarioTracks, LEVELS, type ScenarioLevel } from '@/lib/scenarios/catalogue'
 import { createClient } from '@/lib/supabase/client'
@@ -157,16 +157,27 @@ export default function DashboardPage() {
               <p className="text-xs font-medium truncate">{displayName}</p>
               <p className="text-[10px] text-white/30">Free Plan</p>
             </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={loggingOut}
-              aria-label="Log out"
-              title="Log out"
-              className="text-white/25 hover:text-white/60 transition disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => router.push('/settings')}
+                aria-label="Settings"
+                title="Settings"
+                className="text-white/25 hover:text-white/60 transition p-1 rounded-lg hover:bg-white/[0.06]"
+              >
+                <Settings className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                aria-label="Log out"
+                title="Log out"
+                className="text-white/25 hover:text-white/60 transition p-1 rounded-lg hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </aside>
