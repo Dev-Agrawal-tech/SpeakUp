@@ -4,33 +4,70 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
-  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleMagicLink = async () => {
+  const handleLogin = async () => {
+    setError('')
     setLoading(true)
     const supabase = createClient()
-    await supabase.auth.signInWithOtp({
+    let email = identifier.trim()
+    if (!email.includes('@')) {
+      const response = await fetch('/api/auth/username', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email }),
+      })
+      const result = await response.json() as { email?: string }
+      email = result.email || ''
+    }
+
+    const { error: loginError } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/api/auth/callback`,
-      },
+      password,
     })
-    setSent(true)
+
+    if (loginError) {
+      setError(loginError.message.includes('Email not confirmed')
+        ? 'Please confirm your email before logging in.'
+        : 'Incorrect email or password.')
+    } else {
+      window.location.href = '/dashboard'
+    }
+    setLoading(false)
+  }
+
+  const handleForgotPassword = async () => {
+    setError('')
+    if (!identifier.trim() || !identifier.includes('@')) {
+      setError('Enter your account email to reset your password.')
+      return
+    }
+
+    setLoading(true)
+    const supabase = createClient()
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(identifier.trim(), {
+      redirectTo: `${window.location.origin}/api/auth/callback?next=/reset-password`,
+    })
+
+    if (resetError) setError(resetError.message)
+    else setError('If an account exists for this email, a password reset link is on its way.')
     setLoading(false)
   }
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true)
     const supabase = createClient()
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/api/auth/callback`,
+        redirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
       },
     })
+    if (error) setError(error.message)
     setGoogleLoading(false)
   }
 
@@ -48,7 +85,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {!sent ? (
           <div className="space-y-4">
 
             {/* Google Login */}
@@ -73,43 +109,47 @@ export default function LoginPage() {
               <div className="flex-1 h-px bg-white/10"></div>
             </div>
 
-            {/* Magic Link */}
             <div>
               <label className="text-sm text-white/70 mb-1 block">
-                Email address
+                Email address or username
               </label>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="Email or username"
+                autoComplete="username"
                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
               />
             </div>
 
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Your password"
+                autoComplete="current-password"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
+              />
+            </div>
+
+            {error && <p className={`text-sm ${error.startsWith('If an account') ? 'text-green-400' : 'text-red-400'}`}>{error}</p>}
+
             <button
-              onClick={handleMagicLink}
-              disabled={loading || !email}
+              onClick={handleLogin}
+              disabled={loading || googleLoading || !identifier || !password}
               className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-xl text-sm font-medium transition"
             >
-              {loading ? 'Sending...' : 'Send Magic Link'}
+              {loading ? 'Logging in...' : 'Login'}
             </button>
 
-            <p className="text-center text-xs text-white/30">
-              No password needed. We email you a login link.
-            </p>
+            <button onClick={handleForgotPassword} disabled={loading} className="w-full text-center text-xs text-blue-400 hover:text-blue-300 disabled:opacity-50">
+              Forgot password?
+            </button>
 
           </div>
-        ) : (
-          <div className="text-center p-6 rounded-xl border border-white/10 bg-white/5">
-            <div className="text-3xl mb-3">📧</div>
-            <h2 className="font-medium mb-2">Check your email</h2>
-            <p className="text-sm text-white/50">
-              We sent a login link to{' '}
-              <span className="text-white">{email}</span>
-            </p>
-          </div>
-        )}
 
         <p className="text-center text-xs text-white/30 mt-6">
           No account?{' '}

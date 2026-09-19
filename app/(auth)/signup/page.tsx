@@ -5,34 +5,97 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [name, setName] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSignup = async () => {
+    setError('')
+    const normalizedUsername = username.trim().toLowerCase()
+    if (!name.trim() || !email.trim() || !normalizedUsername || password.length < 8) {
+      setError('Enter your name, username, email, and a password with at least 8 characters.')
+      return
+    }
+    if (!/^[a-z0-9_]{3,20}$/.test(normalizedUsername)) {
+      setError('Username must be 3-20 characters using only letters, numbers, and underscores.')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+
     setLoading(true)
+    const availabilityResponse = await fetch('/api/auth/username-availability', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: normalizedUsername }),
+    })
+    const availability = await availabilityResponse.json() as { available?: boolean }
+    if (!availability.available) {
+      setError('That username is already taken. Please choose a different username.')
+      setLoading(false)
+      return
+    }
+
     const supabase = createClient()
-    await supabase.auth.signInWithOtp({
+    const { data, error: signupError } = await supabase.auth.signUp({
       email,
+      password,
       options: {
-        data: { name },
-        emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+        data: { name, username: normalizedUsername },
+        emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/onboarding`,
       },
     })
-    setSent(true)
+
+    const isExistingAccount = signupError?.message.toLowerCase().includes('already registered')
+      || data.user?.identities?.length === 0
+
+    if (isExistingAccount) {
+      setError('This email is already registered. Please log in or use a different email address.')
+    } else if (signupError) {
+      setError(signupError.message)
+    } else if (data.session) {
+      window.location.href = '/onboarding'
+    } else {
+      setSent(true)
+    }
     setLoading(false)
+  }
+
+  const handleResendConfirmation = async () => {
+    setError('')
+    setResendLoading(true)
+    const supabase = createClient()
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email: email.trim(),
+      options: {
+        emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/onboarding`,
+      },
+    })
+
+    if (resendError) setError(resendError.message)
+    else setError('A new confirmation link was requested. Check Gmail, including Spam and Promotions.')
+    setResendLoading(false)
   }
 
   const handleGoogleSignup = async () => {
     setGoogleLoading(true)
     const supabase = createClient()
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/api/auth/callback`,
+        redirectTo: `${window.location.origin}/api/auth/callback?next=/onboarding`,
       },
     })
+    if (error) setError(error.message)
     setGoogleLoading(false)
   }
 
@@ -95,16 +158,54 @@ export default function SignupPage() {
               />
             </div>
 
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="arjun_singh"
+                autoComplete="username"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 8 characters"
+                autoComplete="new-password"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Confirm password</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter your password"
+                autoComplete="new-password"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
+              />
+            </div>
+
+            {error && <p className="text-sm text-red-400">{error}</p>}
+
             <button
               onClick={handleSignup}
-              disabled={loading || !email || !name}
+              disabled={loading || googleLoading}
               className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-xl text-sm font-medium transition"
             >
               {loading ? 'Creating account...' : 'Create Free Account →'}
             </button>
 
             <p className="text-center text-xs text-white/30">
-              No password needed. No credit card. Free forever.
+              We will email you a confirmation link. No credit card required.
             </p>
 
           </div>
@@ -113,9 +214,20 @@ export default function SignupPage() {
             <div className="text-3xl mb-3">📧</div>
             <h2 className="font-medium mb-2">Check your email!</h2>
             <p className="text-sm text-white/50">
-              We sent a signup link to{' '}
+              We sent a confirmation link to{' '}
               <span className="text-white">{email}</span>
             </p>
+            <p className="text-xs text-white/40 mt-3">
+              Check Spam and Promotions too. It can take a few minutes to arrive.
+            </p>
+            {error && <p className={`text-xs mt-3 ${error.startsWith('A new') ? 'text-green-400' : 'text-red-400'}`}>{error}</p>}
+            <button
+              onClick={handleResendConfirmation}
+              disabled={resendLoading}
+              className="mt-4 text-sm text-blue-400 hover:text-blue-300 disabled:opacity-50"
+            >
+              {resendLoading ? 'Requesting...' : 'Resend confirmation email'}
+            </button>
           </div>
         )}
 
