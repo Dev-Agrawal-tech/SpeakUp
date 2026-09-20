@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { Camera, Check, Link as LinkIcon, User as UserIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/toast'
@@ -14,17 +15,17 @@ export function ProfileSettings() {
   const [saving, setSaving] = useState(false)
   const [memberSince, setMemberSince] = useState('')
 
-  // Fields that exist in DB
+  // Real DB fields
   const nameState = useDirtyState('')
   const usernameState = useDirtyState('')
-
-  // UI-only mock fields
   const bioState = useDirtyState('')
   const locationState = useDirtyState('')
   const websiteState = useDirtyState('')
   const linkedinState = useDirtyState('')
   const skillsState = useDirtyState('')
-  const [showEmail, setShowEmail] = useState(false)
+  const [showEmail, setShowEmail] = useState(true)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   const isDirty = nameState.isDirty || usernameState.isDirty || bioState.isDirty || 
     locationState.isDirty || websiteState.isDirty || linkedinState.isDirty || skillsState.isDirty
@@ -35,10 +36,17 @@ export function ProfileSettings() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setMemberSince(new Date(user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long' }))
-        const { data: profile } = await supabase.from('users').select('name, username').eq('id', user.id).maybeSingle()
+        const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).maybeSingle()
         if (profile) {
           nameState.reset(profile.name || '')
           usernameState.reset(profile.username || '')
+          bioState.reset(profile.bio || '')
+          locationState.reset(profile.location || '')
+          websiteState.reset(profile.website || '')
+          linkedinState.reset(profile.linkedin || '')
+          skillsState.reset(Array.isArray(profile.skills) ? profile.skills.join(', ') : (profile.skills || ''))
+          setShowEmail(profile.show_email ?? true)
+          setAvatarUrl(profile.avatar_url || null)
         }
       }
       setLoading(false)
@@ -47,6 +55,71 @@ export function ProfileSettings() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast('error', 'Avatar image must be less than 2MB')
+      return
+    }
+
+    setUploadingAvatar(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setUploadingAvatar(false)
+      return
+    }
+
+    const fileExt = file.name.split('.').pop()
+    const filePath = `${user.id}-${Date.now()}.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true })
+
+    if (uploadError) {
+      toast('error', `Upload failed: ${uploadError.message}`)
+      setUploadingAvatar(false)
+      return
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath)
+
+    // Save to user profile table
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ avatar_url: publicUrl })
+      .eq('id', user.id)
+
+    if (updateError) {
+      toast('error', `Failed to update profile picture: ${updateError.message}`)
+    } else {
+      setAvatarUrl(publicUrl)
+      toast('success', 'Profile photo updated!')
+    }
+    setUploadingAvatar(false)
+  }
+
+  const handleAvatarRemove = async () => {
+    setUploadingAvatar(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { error } = await supabase.from('users').update({ avatar_url: null }).eq('id', user.id)
+    if (!error) {
+      setAvatarUrl(null)
+      toast('success', 'Profile photo removed')
+    } else {
+      toast('error', error.message)
+    }
+    setUploadingAvatar(false)
+  }
+
   const handleSave = async () => {
     if (!isDirty) return
     setSaving(true)
@@ -54,18 +127,26 @@ export function ProfileSettings() {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (user) {
-      // Save real DB fields
-      if (nameState.isDirty || usernameState.isDirty) {
-        const { error } = await supabase.from('users').update({
-          name: nameState.value,
-          username: usernameState.value || null
-        }).eq('id', user.id)
-        
-        if (error) {
-          toast('error', `Failed to save profile: ${error.message}`)
-          setSaving(false)
-          return
-        }
+      const skillsArray = skillsState.value
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+
+      const { error } = await supabase.from('users').update({
+        name: nameState.value,
+        username: usernameState.value || null,
+        bio: bioState.value || null,
+        location: locationState.value || null,
+        website: websiteState.value || null,
+        linkedin: linkedinState.value || null,
+        skills: skillsArray,
+        show_email: showEmail
+      }).eq('id', user.id)
+      
+      if (error) {
+        toast('error', `Failed to save profile: ${error.message}`)
+        setSaving(false)
+        return
       }
       
       nameState.reset()
@@ -94,15 +175,36 @@ export function ProfileSettings() {
 
       {/* Avatar & Header */}
       <SettingsCard className="mb-6 flex flex-col sm:flex-row items-center gap-6">
-        <div className="relative group cursor-pointer">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-3xl font-bold">
-            {nameState.value.charAt(0).toUpperCase() || 'S'}
-          </div>
+        <label className="relative group cursor-pointer">
+          <input 
+            type="file" 
+            accept="image/*" 
+            onChange={handleAvatarUpload} 
+            disabled={uploadingAvatar}
+            className="hidden" 
+          />
+          {avatarUrl ? (
+            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-white/10">
+              <Image 
+                src={avatarUrl} 
+                alt="Avatar" 
+                fill
+                className="object-cover" 
+                unoptimized
+              />
+            </div>
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-3xl font-bold">
+              {nameState.value.charAt(0).toUpperCase() || 'S'}
+            </div>
+          )}
           <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 backdrop-blur-sm">
             <Camera className="h-5 w-5 text-white/80" />
-            <span className="text-[10px] font-medium text-white/80">Upload</span>
+            <span className="text-[10px] font-medium text-white/80">
+              {uploadingAvatar ? '...' : 'Upload'}
+            </span>
           </div>
-        </div>
+        </label>
         <div className="text-center sm:text-left flex-1">
           <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
             <h3 className="text-lg font-semibold">{nameState.value || 'Student'}</h3>
@@ -112,12 +214,26 @@ export function ProfileSettings() {
           </div>
           <p className="text-xs text-white/40 mb-3">Member since {memberSince}</p>
           <div className="flex items-center justify-center sm:justify-start gap-3">
-            <button className="px-4 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium transition">
-              Change Photo
-            </button>
-            <button className="px-4 py-1.5 rounded-xl text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition">
-              Remove
-            </button>
+            <label className="cursor-pointer px-4 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium transition">
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleAvatarUpload} 
+                disabled={uploadingAvatar}
+                className="hidden" 
+              />
+              {uploadingAvatar ? 'Uploading...' : 'Change Photo'}
+            </label>
+            {avatarUrl && (
+              <button 
+                type="button"
+                onClick={handleAvatarRemove}
+                disabled={uploadingAvatar}
+                className="px-4 py-1.5 rounded-xl text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition"
+              >
+                Remove
+              </button>
+            )}
           </div>
         </div>
       </SettingsCard>

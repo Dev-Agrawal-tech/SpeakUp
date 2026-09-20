@@ -16,4 +16,17 @@
 - **Forms**: react-hook-form + zod installed
 
 Phase 1 done: app/(app)/dashboard/page.tsx, app/(app)/settings/page.tsx, components/settings/primitives.tsx, components/ui/confirm-dialog.tsx, components/ui/toast.tsx, components/ui/toggle.tsx, lib/config/plans.ts, lib/hooks/use-unsaved-changes.ts, middleware.ts, docs/SETTINGS_PROGRESS.md
-Phase 2 done: components/settings/profile.tsx, components/settings/security.tsx, components/settings/verification.tsx, app/(app)/settings/page.tsx; REAL: name, username, password change, email change; COMING SOON: avatar upload, bio, location, social links, active sessions signout, mobile OTP, 2FA setup
+## Phase 2 Status: Done (Updated with Real Avatar Storage, Extended Profile Fields & Real 2FA TOTP)
+- Files built:
+  - `components/settings/profile.tsx`
+  - `components/settings/security.tsx`
+  - `components/settings/verification.tsx`
+- REAL backend connected:
+  - Profile load and save (name, username, bio, location, website, linkedin, skills, show_email) to `public.users`
+  - Avatar image upload directly to Supabase `avatars` bucket with public URL persistence
+  - Password change via `supabase.auth.updateUser`
+  - Email change initiation via `supabase.auth.updateUser`
+  - Two-Step Verification (2FA / TOTP) via `supabase.auth.mfa.enroll`, QR code generation, manual key copy, and code verification
+- COMING SOON / UNWIRED:
+  - Mobile SMS verification (Free-tier friendly mock, ready for Twilio provider config)
+  - Active sessions remote revoke (Mock UI until service role API route is added)
