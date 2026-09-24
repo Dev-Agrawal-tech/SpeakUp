@@ -30,3 +30,15 @@ Phase 1 done: app/(app)/dashboard/page.tsx, app/(app)/settings/page.tsx, compone
 - COMING SOON / UNWIRED:
   - Mobile SMS verification (Free-tier friendly mock, ready for Twilio provider config)
   - Active sessions remote revoke (Mock UI until service role API route is added)
+
+## Phase 3 Status: Done
+- Files built:
+  - `lib/hooks/use-settings-store.ts` (localStorage store)
+  - `components/settings/subscription.tsx` (UI with `plans.ts` data)
+  - `components/settings/notifications.tsx`
+  - `components/settings/privacy.tsx`
+- REAL backend connected:
+  - Settings persisted via localStorage for Notifications and Privacy
+- COMING SOON / MOCK:
+  - Subscriptions/Payments (fully disabled "Upgrade" buttons per prompt)
+  - Report / Safety flows (currently mock buttons)

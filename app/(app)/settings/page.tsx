@@ -13,6 +13,9 @@ import { ToastProvider } from '@/components/ui/toast'
 import { ProfileSettings } from '@/components/settings/profile'
 import { SecuritySettings } from '@/components/settings/security'
 import { VerificationSettings } from '@/components/settings/verification'
+import { SubscriptionSettings } from '@/components/settings/subscription'
+import { NotificationSettings } from '@/components/settings/notifications'
+import { PrivacySettings } from '@/components/settings/privacy'
 
 /* ─── Section definitions ─── */
 export interface SettingsSectionDef {
@@ -268,6 +271,12 @@ export default function SettingsPage() {
                   <SecuritySettings />
                 ) : activeSection === 'verification' ? (
                   <VerificationSettings />
+                ) : activeSection === 'subscription' ? (
+                  <SubscriptionSettings />
+                ) : activeSection === 'notifications' ? (
+                  <NotificationSettings />
+                ) : activeSection === 'privacy' ? (
+                  <PrivacySettings />
                 ) : (
                   <SectionStub section={currentSection} />
                 )}
