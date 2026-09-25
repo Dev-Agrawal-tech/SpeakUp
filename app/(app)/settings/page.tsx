@@ -19,6 +19,9 @@ import { PrivacySettings } from '@/components/settings/privacy'
 import { AppearanceSettings } from '@/components/settings/appearance'
 import { LanguageSettings } from '@/components/settings/language'
 import { AccessibilitySettings } from '@/components/settings/accessibility'
+import { DataSettings } from '@/components/settings/data'
+import { HelpSettings } from '@/components/settings/help'
+import { IntegrationsSettings } from '@/components/settings/integrations'
 
 /* ─── Section definitions ─── */
 export interface SettingsSectionDef {
@@ -286,6 +289,12 @@ export default function SettingsPage() {
                   <LanguageSettings />
                 ) : activeSection === 'accessibility' ? (
                   <AccessibilitySettings />
+                ) : activeSection === 'data' ? (
+                  <DataSettings />
+                ) : activeSection === 'help' ? (
+                  <HelpSettings />
+                ) : activeSection === 'integrations' ? (
+                  <IntegrationsSettings />
                 ) : (
                   <SectionStub section={currentSection} />
                 )}

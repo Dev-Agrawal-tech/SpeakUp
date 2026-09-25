@@ -17,6 +17,7 @@ export function NotificationSettings() {
   const dirtyCounter = useDirtyState(0)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettings(readSettings().notifications)
     setLoading(false)
   }, [])

@@ -18,6 +18,7 @@ export function PrivacySettings() {
   const dirtyCounter = useDirtyState(0)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettings(readSettings().privacy)
     setLoading(false)
   }, [])

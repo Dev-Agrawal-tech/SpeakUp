@@ -52,3 +52,19 @@ Phase 1 done: app/(app)/dashboard/page.tsx, app/(app)/settings/page.tsx, compone
   - Expanded `lib/hooks/use-settings-store.ts` to cover Appearance, Language, and Accessibility fields.
   - Wired new components into `app/(app)/settings/page.tsx`.
   - Added global DOM initialization in `app/layout.tsx` to read the localStorage store before hydration to prevent a flash of unstyled content or wrong themes.
+
+## Phase 5 Status: Done
+- Files built:
+  - `components/settings/data.tsx`
+  - `components/settings/help.tsx`
+  - `components/settings/integrations.tsx`
+- Updates made:
+  - Wired Data, Help, and Integrations into `app/(app)/settings/page.tsx`.
+- REAL:
+  - Export My Data (downloads a placeholder JSON).
+  - Clear History and Delete Account (UI + confirm flows with validation).
+  - Help Center, Contact Support, Report a Problem, Terms of Service, Privacy Policy, About section.
+  - Version number.
+- COMING SOON:
+  - API Keys (generation/revocation/view).
+  - Connected Services (Google, GitHub, Discord).

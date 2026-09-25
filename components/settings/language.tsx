@@ -16,6 +16,7 @@ export function LanguageSettings() {
   const dirtyCounter = useDirtyState(0)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettings(readSettings().language)
     setLoading(false)
   }, [])
@@ -112,7 +113,7 @@ export function LanguageSettings() {
               {['12h', '24h'].map((format) => (
                 <button
                   key={format}
-                  onClick={() => updateSetting('timeFormat', format)}
+                  onClick={() => updateSetting('timeFormat', format as AppSettings['language']['timeFormat'])}
                   className={`px-6 py-1.5 rounded-lg text-sm font-medium transition-all ${
                     settings.timeFormat === format
                       ? 'bg-white/10 text-white shadow-sm'

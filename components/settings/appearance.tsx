@@ -17,6 +17,7 @@ export function AppearanceSettings() {
   const dirtyCounter = useDirtyState(0)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettings(readSettings().appearance)
     setLoading(false)
   }, [])
@@ -78,7 +79,7 @@ export function AppearanceSettings() {
               return (
                 <button
                   key={theme.id}
-                  onClick={() => updateSetting('theme', theme.id)}
+                  onClick={() => updateSetting('theme', theme.id as AppSettings['appearance']['theme'])}
                   className={`flex flex-col items-center p-4 rounded-xl border transition-all ${
                     isSelected
                       ? 'border-blue-500 bg-blue-500/10'
@@ -115,7 +116,7 @@ export function AppearanceSettings() {
             ].map((accent) => (
               <button
                 key={accent.id}
-                onClick={() => updateSetting('accentColor', accent.id)}
+                onClick={() => updateSetting('accentColor', accent.id as AppSettings['appearance']['accentColor'])}
                 className={`w-12 h-12 rounded-full ${accent.color} flex items-center justify-center transition-transform hover:scale-110 ${
                   settings.accentColor === accent.id ? 'ring-4 ring-white/20 ring-offset-2 ring-offset-[#0A0A0A]' : 'opacity-80'
                 }`}
@@ -136,7 +137,7 @@ export function AppearanceSettings() {
               {['compact', 'normal', 'relaxed'].map((density) => (
                 <button
                   key={density}
-                  onClick={() => updateSetting('uiDensity', density)}
+                  onClick={() => updateSetting('uiDensity', density as AppSettings['appearance']['uiDensity'])}
                   className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                     settings.uiDensity === density
                       ? 'bg-white/10 text-white shadow-sm'
