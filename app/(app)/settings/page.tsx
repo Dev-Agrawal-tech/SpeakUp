@@ -16,6 +16,9 @@ import { VerificationSettings } from '@/components/settings/verification'
 import { SubscriptionSettings } from '@/components/settings/subscription'
 import { NotificationSettings } from '@/components/settings/notifications'
 import { PrivacySettings } from '@/components/settings/privacy'
+import { AppearanceSettings } from '@/components/settings/appearance'
+import { LanguageSettings } from '@/components/settings/language'
+import { AccessibilitySettings } from '@/components/settings/accessibility'
 
 /* ─── Section definitions ─── */
 export interface SettingsSectionDef {
@@ -277,6 +280,12 @@ export default function SettingsPage() {
                   <NotificationSettings />
                 ) : activeSection === 'privacy' ? (
                   <PrivacySettings />
+                ) : activeSection === 'appearance' ? (
+                  <AppearanceSettings />
+                ) : activeSection === 'language' ? (
+                  <LanguageSettings />
+                ) : activeSection === 'accessibility' ? (
+                  <AccessibilitySettings />
                 ) : (
                   <SectionStub section={currentSection} />
                 )}

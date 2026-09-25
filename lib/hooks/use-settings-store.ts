@@ -33,6 +33,26 @@ export interface AppSettings {
     aiTrainingConsent: boolean
     personalization: boolean
   }
+  // Appearance
+  appearance: {
+    theme: 'dark' | 'light' | 'system'
+    accentColor: 'blue' | 'purple' | 'emerald' | 'rose'
+    uiDensity: 'compact' | 'normal' | 'relaxed'
+    animations: boolean
+  }
+  // Language & Region
+  language: {
+    displayLanguage: string
+    timeZone: string
+    dateFormat: string
+    timeFormat: '12h' | '24h'
+  }
+  // Accessibility
+  accessibility: {
+    reduceMotion: boolean
+    highContrast: boolean
+    fontSize: 'small' | 'medium' | 'large'
+  }
 }
 
 const defaultSettings: AppSettings = {
@@ -59,6 +79,23 @@ const defaultSettings: AppSettings = {
     analyticsSharing: true,
     aiTrainingConsent: true,
     personalization: true,
+  },
+  appearance: {
+    theme: 'dark', // App is natively dark
+    accentColor: 'blue',
+    uiDensity: 'normal',
+    animations: true,
+  },
+  language: {
+    displayLanguage: 'en',
+    timeZone: 'auto',
+    dateFormat: 'MM/DD/YYYY',
+    timeFormat: '12h',
+  },
+  accessibility: {
+    reduceMotion: false,
+    highContrast: false,
+    fontSize: 'medium',
   },
 }
 

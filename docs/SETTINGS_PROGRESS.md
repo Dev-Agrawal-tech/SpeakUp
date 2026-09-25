@@ -42,3 +42,13 @@ Phase 1 done: app/(app)/dashboard/page.tsx, app/(app)/settings/page.tsx, compone
 - COMING SOON / MOCK:
   - Subscriptions/Payments (fully disabled "Upgrade" buttons per prompt)
   - Report / Safety flows (currently mock buttons)
+
+## Phase 4 Status: Done
+- Files built:
+  - `components/settings/appearance.tsx`
+  - `components/settings/language.tsx`
+  - `components/settings/accessibility.tsx`
+- Updates made:
+  - Expanded `lib/hooks/use-settings-store.ts` to cover Appearance, Language, and Accessibility fields.
+  - Wired new components into `app/(app)/settings/page.tsx`.
+  - Added global DOM initialization in `app/layout.tsx` to read the localStorage store before hydration to prevent a flash of unstyled content or wrong themes.

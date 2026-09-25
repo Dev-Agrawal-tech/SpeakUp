@@ -18,10 +18,7 @@ export function PrivacySettings() {
   const dirtyCounter = useDirtyState(0)
 
   useEffect(() => {
-    // Disable lint for setState in effect since it's just initializing from localStorage on mount (SSR safe)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettings(readSettings().privacy)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(false)
   }, [])
 
