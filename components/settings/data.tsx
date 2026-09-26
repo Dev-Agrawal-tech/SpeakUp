@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Download, AlertTriangle, Database, Activity } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 import { SettingsHeader, SettingsSection, SettingsCard } from './primitives'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -13,11 +14,54 @@ export function DataSettings() {
   const [exporting, setExporting] = useState(false)
   const [clearing, setClearing] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  
+
   // Modals state
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
+
+  // Delete modal focus trap
+  const deleteModalRef = useRef<HTMLDivElement>(null)
+
+  const closeDeleteModal = useCallback(() => {
+    setShowDeleteConfirm(false)
+    setDeleteConfirmText('')
+  }, [])
+
+  useEffect(() => {
+    if (!showDeleteConfirm) return
+
+    const el = deleteModalRef.current
+    if (el) {
+      const firstInput = el.querySelector<HTMLElement>('input')
+      firstInput?.focus()
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeDeleteModal()
+        return
+      }
+      if (e.key === 'Tab' && el) {
+        const focusable = el.querySelectorAll<HTMLElement>(
+          'button, input, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [showDeleteConfirm, closeDeleteModal])
 
   const handleExport = async () => {
     setExporting(true)
@@ -26,9 +70,8 @@ export function DataSettings() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not logged in')
 
-      // Fetch basic profile as a placeholder for data export
       const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single()
-      
+
       const exportData = {
         user: profile,
         exportedAt: new Date().toISOString(),
@@ -44,7 +87,7 @@ export function DataSettings() {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      
+
       toast('success', 'Data exported successfully')
     } catch (e: unknown) {
       toast('error', 'Failed to export data: ' + (e as Error).message)
@@ -55,7 +98,6 @@ export function DataSettings() {
 
   const handleClearHistory = async () => {
     setClearing(true)
-    // Simulate clearing history
     await new Promise(r => setTimeout(r, 1000))
     setClearing(false)
     setShowClearConfirm(false)
@@ -69,8 +111,6 @@ export function DataSettings() {
     }
     setDeleting(true)
     try {
-      // For now, this is a placeholder integration. 
-      // Safely deleting an account requires an edge function or postgres function with admin privileges.
       await new Promise(r => setTimeout(r, 1500))
       const supabase = createClient()
       await supabase.auth.signOut()
@@ -170,37 +210,29 @@ export function DataSettings() {
         </SettingsCard>
       </SettingsSection>
 
-      {/* Clear History Modal */}
-      {showClearConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#111] border border-white/[0.1] rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-2">Clear Practice History?</h3>
-            <p className="text-sm text-white/60 mb-6">
-              This action will permanently delete all your past practice sessions and feedback. Your streaks and overall level will remain.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowClearConfirm(false)}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleClearHistory}
-                disabled={clearing}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-50"
-              >
-                {clearing ? 'Clearing...' : 'Yes, clear history'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Clear History — uses ConfirmDialog with focus trap + Esc */}
+      <ConfirmDialog
+        open={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={handleClearHistory}
+        title="Clear Practice History?"
+        description="This action will permanently delete all your past practice sessions and feedback. Your streaks and overall level will remain."
+        confirmLabel="Yes, clear history"
+        cancelLabel="Cancel"
+        variant="danger"
+        loading={clearing}
+      />
 
-      {/* Delete Account Modal */}
+      {/* Delete Account — custom modal with type-to-confirm + focus trap + Esc */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#111] border border-red-500/20 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+          <div
+            ref={deleteModalRef}
+            role="alertdialog"
+            aria-modal="true"
+            aria-label="Delete Account"
+            className="bg-[#111] border border-red-500/20 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+          >
             <div className="flex items-center gap-3 mb-4 text-red-400">
               <AlertTriangle className="h-6 w-6" />
               <h3 className="text-lg font-bold">Delete Account</h3>
@@ -208,7 +240,7 @@ export function DataSettings() {
             <p className="text-sm text-white/60 mb-4">
               This action may permanently delete your account and associated data. You will lose access to all your progress, and it cannot be recovered.
             </p>
-            
+
             <div className="mb-6">
               <label className="block text-xs font-medium text-white/40 mb-2">
                 Type <strong className="text-white">DELETE</strong> to confirm
@@ -224,10 +256,7 @@ export function DataSettings() {
 
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => {
-                  setShowDeleteConfirm(false)
-                  setDeleteConfirmText('')
-                }}
+                onClick={closeDeleteModal}
                 className="px-4 py-2 rounded-xl text-sm font-medium text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition"
               >
                 Cancel
