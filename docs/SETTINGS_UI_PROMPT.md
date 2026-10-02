@@ -4,7 +4,7 @@ Ignore it when searching for product features, plans or limits.
 Product docs to read first (source of truth for the product):
 - docs/PROMPT.md
 - docs/_prd_extract/ (extracted text of the PRD)
-- docs/SpeakUp_PRD_v1.0.docx, docs/SpeakUp_PRD_V1_1.docx, docs/SpeakUp_TRD_v1.0.docx  
+- docs/SpeakUp_PRD_v1.0.docx, docs/SpeakUp_PRD_V1_1.docx, docs/SpeakUp_TRD_v1.0.docx  Che
 - docs/SETTINGS_PHASES.md
 - AGENTS.md and CLAUDE.md in the project root
 
