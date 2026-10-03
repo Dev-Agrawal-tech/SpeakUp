@@ -1,0 +1,30 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "SpeakUp readiness baseline",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"git status --short --branch && git log -1 --oneline && node --version && npm --version && npm run lint && npx tsc --noEmit && npm run build"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "SpeakUp local preview",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev",
+				"--",
+				"--port",
+				"3001"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

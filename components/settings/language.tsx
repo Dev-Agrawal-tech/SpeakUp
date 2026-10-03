@@ -31,8 +31,12 @@ export function LanguageSettings() {
     if (!settings) return
     setSaving(true)
     const current = readSettings()
-    
-    writeSettings({ ...current, language: settings })
+
+    if (!writeSettings({ ...current, language: settings })) {
+      toast('error', 'Could not save language preferences on this device.')
+      setSaving(false)
+      return
+    }
 
     dirtyCounter.reset()
     setSaving(false)
@@ -62,8 +66,8 @@ export function LanguageSettings() {
             className="w-full sm:max-w-xs bg-white/[0.04] border border-white/[0.1] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 appearance-none"
           >
             <option value="en">English (US)</option>
-            <option value="hi">Hindi (Coming Soon)</option>
-            <option value="es">Spanish (Coming Soon)</option>
+            <option value="hi" disabled>Hindi (Coming Soon)</option>
+            <option value="es" disabled>Spanish (Coming Soon)</option>
           </select>
         </SettingsCard>
       </SettingsSection>
