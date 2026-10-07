@@ -41,7 +41,11 @@ export function PrivacySettings() {
     if (!settings) return
     setSaving(true)
     const current = readSettings()
-    writeSettings({ ...current, privacy: settings })
+    if (!writeSettings({ ...current, privacy: settings })) {
+      toast('error', 'Could not save privacy preferences on this device.')
+      setSaving(false)
+      return
+    }
     dirtyCounter.reset()
     setSaving(false)
     toast('success', 'Privacy & safety preferences saved')

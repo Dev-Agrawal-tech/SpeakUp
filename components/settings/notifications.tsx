@@ -32,7 +32,11 @@ export function NotificationSettings() {
     if (!settings) return
     setSaving(true)
     const current = readSettings()
-    writeSettings({ ...current, notifications: settings })
+    if (!writeSettings({ ...current, notifications: settings })) {
+      toast('error', 'Could not save notification preferences on this device.')
+      setSaving(false)
+      return
+    }
     dirtyCounter.reset()
     setSaving(false)
     toast('success', 'Notification preferences saved')
