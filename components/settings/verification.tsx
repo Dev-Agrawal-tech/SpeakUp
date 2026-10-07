@@ -12,6 +12,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 export function VerificationSettings() {
   const { toast } = useToast()
   const [email, setEmail] = useState('')
+  const [emailVerified, setEmailVerified] = useState(false)
   const [newEmail, setNewEmail] = useState('')
   const [loading, setLoading] = useState(true)
   const [sendingEmail, setSendingEmail] = useState(false)
@@ -37,6 +38,7 @@ export function VerificationSettings() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) {
         setEmail(user.email)
+        setEmailVerified(Boolean(user.email_confirmed_at))
       }
       // Check existing MFA factors
       const { data: factors } = await supabase.auth.mfa.listFactors()
@@ -156,9 +158,9 @@ export function VerificationSettings() {
               </div>
               <div>
                 <p className="text-sm font-medium">{email}</p>
-                <div className="flex items-center gap-1.5 text-xs text-emerald-400 mt-0.5">
+                <div className={`flex items-center gap-1.5 text-xs mt-0.5 ${emailVerified ? 'text-emerald-400' : 'text-amber-400'}`}>
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  <span>Verified</span>
+                  <span>{emailVerified ? 'Verified' : 'Confirmation required'}</span>
                 </div>
               </div>
             </div>

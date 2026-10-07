@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { scenarioId, transcript, durationSeconds } = body
+    const { scenarioId, transcript } = body
 
     if (!scenarioId || typeof scenarioId !== 'string') {
       return errorResponse('scenarioId is required.', 400)
@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         scenario_id: scenarioId,
         transcript: transcript.trim(),
-        duration_seconds: durationSeconds ?? null,
         status: 'complete',
       })
       .select('id')
@@ -45,38 +44,14 @@ export async function POST(request: NextRequest) {
     if (sessionError) {
       console.error('Session insert error:', sessionError)
 
-      // Fallback: if sessions table doesn't exist or has different schema,
-      // try inserting into user_attempts table
-      const { data: attempt, error: attemptError } = await supabase
-        .from('user_attempts')
-        .insert({
-          user_id: user.id,
-          scenario_id: scenarioId,
-          transcript: transcript.trim(),
-          duration_seconds: durationSeconds ?? null,
-          score: 0,
-        })
-        .select('id')
-        .single()
-
-      if (attemptError) {
-        console.error('Attempt insert error:', attemptError)
-        return errorResponse('Failed to save attempt. Database error.', 500)
-      }
-
-      return NextResponse.json({
-        success: true,
-        attemptId: attempt.id,
-        score: 0,
-        message: 'Attempt saved successfully. AI feedback coming soon!',
-      })
+      return errorResponse('Failed to save attempt. Database error.', 500)
     }
 
     return NextResponse.json({
       success: true,
       sessionId: session.id,
       score: 0,
-      message: 'Attempt saved successfully. AI feedback coming soon!',
+      message: 'Attempt saved successfully.',
     })
 
   } catch (error: unknown) {
@@ -102,25 +77,13 @@ export async function GET() {
     // Try sessions table first
     const { data: sessions, error } = await supabase
       .from('sessions')
-      .select('id, scenario_id, transcript, status, duration_seconds, created_at')
+      .select('id, scenario_id, transcript, status, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(20)
 
     if (error) {
-      // Fallback to user_attempts
-      const { data: attempts, error: attError } = await supabase
-        .from('user_attempts')
-        .select('id, scenario_id, transcript, score, duration_seconds, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(20)
-
-      if (attError) {
-        return errorResponse('Failed to fetch attempts.', 500)
-      }
-
-      return NextResponse.json({ attempts })
+      return errorResponse('Failed to fetch attempts.', 500)
     }
 
     return NextResponse.json({ attempts: sessions })

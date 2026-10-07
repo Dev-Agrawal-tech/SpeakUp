@@ -66,17 +66,9 @@ export function DataSettings() {
   const handleExport = async () => {
     setExporting(true)
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not logged in')
-
-      const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single()
-
-      const exportData = {
-        user: profile,
-        exportedAt: new Date().toISOString(),
-        note: 'Full history export coming soon.'
-      }
+      const response = await fetch('/api/account/data')
+      const exportData = await response.json()
+      if (!response.ok) throw new Error(exportData.error || 'Unable to export account data.')
 
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
@@ -98,10 +90,21 @@ export function DataSettings() {
 
   const handleClearHistory = async () => {
     setClearing(true)
-    await new Promise(r => setTimeout(r, 1000))
-    setClearing(false)
-    setShowClearConfirm(false)
-    toast('success', 'Practice history cleared')
+    try {
+      const response = await fetch('/api/account/data', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'clear-history' }),
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to clear practice history.')
+      setShowClearConfirm(false)
+      toast('success', 'Practice history cleared')
+    } catch (error) {
+      toast('error', error instanceof Error ? error.message : 'Unable to clear practice history.')
+    } finally {
+      setClearing(false)
+    }
   }
 
   const handleDeleteAccount = async () => {
@@ -111,13 +114,17 @@ export function DataSettings() {
     }
     setDeleting(true)
     try {
-      await new Promise(r => setTimeout(r, 1500))
-      const supabase = createClient()
-      await supabase.auth.signOut()
-      toast('success', 'Account deleted')
+      const response = await fetch('/api/account/data', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'delete-account', confirmation: deleteConfirmText }),
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Failed to delete account.')
+      await createClient().auth.signOut()
       router.push('/login')
-    } catch {
-      toast('error', 'Failed to delete account')
+    } catch (error) {
+      toast('error', error instanceof Error ? error.message : 'Failed to delete account.')
       setDeleting(false)
     }
   }

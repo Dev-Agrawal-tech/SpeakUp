@@ -5,7 +5,7 @@ import { Moon, Sun, Monitor, Sparkles } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 import { SettingsHeader, SettingsSection, SettingsCard } from './primitives'
 import { Toggle } from '@/components/ui/toggle'
-import { readSettings, writeSettings, type AppSettings } from '@/lib/hooks/use-settings-store'
+import { applySettingsToDocument, readSettings, writeSettings, type AppSettings } from '@/lib/hooks/use-settings-store'
 import { useDirtyState } from '@/lib/hooks/use-unsaved-changes'
 
 export function AppearanceSettings() {
@@ -33,22 +33,13 @@ export function AppearanceSettings() {
     setSaving(true)
     const current = readSettings()
     
-    // Save to localStorage
-    writeSettings({ ...current, appearance: settings })
-    
-    // Apply changes to the DOM instantly
-    document.documentElement.classList.remove('theme-dark', 'theme-light', 'theme-system')
-    document.documentElement.classList.add(`theme-${settings.theme}`)
-    
-    // Note: Accent colors and density would map to CSS variables or data attributes on :root
-    document.documentElement.setAttribute('data-accent', settings.accentColor)
-    document.documentElement.setAttribute('data-density', settings.uiDensity)
-    
-    if (settings.animations) {
-      document.documentElement.classList.remove('reduce-motion-override')
-    } else {
-      document.documentElement.classList.add('reduce-motion-override')
+    const updated = { ...current, appearance: settings }
+    if (!writeSettings(updated)) {
+      toast('error', 'Could not save appearance preferences on this device.')
+      setSaving(false)
+      return
     }
+    applySettingsToDocument(updated)
 
     dirtyCounter.reset()
     setSaving(false)
@@ -71,7 +62,7 @@ export function AppearanceSettings() {
           <div className="grid sm:grid-cols-3 gap-4">
             {[
               { id: 'dark', label: 'Dark', icon: Moon, desc: 'Natively dark' },
-              { id: 'light', label: 'Light', icon: Sun, desc: 'Coming soon' },
+              { id: 'light', label: 'Light', icon: Sun, desc: 'Bright and clear' },
               { id: 'system', label: 'System', icon: Monitor, desc: 'Syncs with device' },
             ].map((theme) => {
               const Icon = theme.icon

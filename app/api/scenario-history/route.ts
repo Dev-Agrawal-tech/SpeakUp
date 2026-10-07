@@ -13,13 +13,6 @@ interface SessionFeedbackRow {
   is_resolved?: boolean | null
 }
 
-interface AttemptFeedbackRow {
-  id: string
-  problem_text?: string | null
-  solution_text?: string | null
-  status?: string | null
-}
-
 /**
  * GET /api/scenario-history?scenarioId=founder-1
  * Returns past attempts for the user on a specific scenario with AI feedback and scores over time.
@@ -43,7 +36,6 @@ export async function GET(request: NextRequest) {
         id,
         scenario_id,
         transcript,
-        duration_seconds,
         created_at,
         scores (
           composite,
@@ -90,47 +82,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ attempts: formatted, authenticated: true })
     }
 
-    // Fallback query from user_attempts & attempt_feedback
-    let attQuery = supabase
-      .from('user_attempts')
-      .select(`
-        id,
-        scenario_id,
-        transcript,
-        score,
-        duration_seconds,
-        created_at,
-        attempt_feedback (
-          id,
-          problem_text,
-          solution_text,
-          status
-        )
-      `)
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (scenarioId) {
-      attQuery = attQuery.eq('scenario_id', scenarioId)
-    }
-
-    const { data: userAttempts } = await attQuery.limit(20)
-
-    const formattedUserAttempts = (userAttempts || []).map((a) => ({
-      id: a.id,
-      scenarioId: a.scenario_id,
-      transcript: a.transcript,
-      createdAt: a.created_at,
-      score: a.score ?? 0,
-      feedback: (a.attempt_feedback as AttemptFeedbackRow[] || []).map((f) => ({
-        id: f.id,
-        problemText: f.problem_text,
-        solutionText: f.solution_text,
-        status: f.status || 'unresolved',
-      })),
-    }))
-
-    return NextResponse.json({ attempts: formattedUserAttempts, authenticated: true })
+    return NextResponse.json({ attempts: [], authenticated: true })
 
   } catch (err: unknown) {
     console.error('Scenario history fetch error:', err)

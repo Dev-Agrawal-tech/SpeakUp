@@ -5,7 +5,7 @@ import { Type } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 import { SettingsHeader, SettingsSection, SettingsCard } from './primitives'
 import { Toggle } from '@/components/ui/toggle'
-import { readSettings, writeSettings, type AppSettings } from '@/lib/hooks/use-settings-store'
+import { applySettingsToDocument, readSettings, writeSettings, type AppSettings } from '@/lib/hooks/use-settings-store'
 import { useDirtyState } from '@/lib/hooks/use-unsaved-changes'
 
 export function AccessibilitySettings() {
@@ -33,24 +33,13 @@ export function AccessibilitySettings() {
     setSaving(true)
     const current = readSettings()
     
-    writeSettings({ ...current, accessibility: settings })
-    
-    // Apply changes to DOM
-    if (settings.reduceMotion) {
-      document.documentElement.classList.add('reduce-motion-override')
-      // Important: sync the appearance settings toggle as well if needed in a real app,
-      // but for now we apply the CSS class.
-    } else {
-      document.documentElement.classList.remove('reduce-motion-override')
+    const updated = { ...current, accessibility: settings }
+    if (!writeSettings(updated)) {
+      toast('error', 'Could not save accessibility preferences on this device.')
+      setSaving(false)
+      return
     }
-    
-    if (settings.highContrast) {
-      document.documentElement.classList.add('high-contrast')
-    } else {
-      document.documentElement.classList.remove('high-contrast')
-    }
-
-    document.documentElement.setAttribute('data-font-size', settings.fontSize)
+    applySettingsToDocument(updated)
 
     dirtyCounter.reset()
     setSaving(false)

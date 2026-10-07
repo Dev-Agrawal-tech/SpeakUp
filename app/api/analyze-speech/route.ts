@@ -43,7 +43,7 @@ interface GuestUnresolvedIssue {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { scenarioId, scenarioTitle, scenarioPrompt, transcript, durationSeconds, guestUnresolvedIssues } = body
+    const { scenarioId, scenarioTitle, scenarioPrompt, transcript, guestUnresolvedIssues } = body
 
     if (!transcript || typeof transcript !== 'string' || transcript.trim().length < 5) {
       return NextResponse.json(
@@ -86,34 +86,6 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Fallback check in user_attempts / attempt_feedback tables
-      if (previousUnresolvedIssues.length === 0) {
-        const { data: pastUserAttempts } = await supabase
-          .from('user_attempts')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('scenario_id', scenarioId)
-          .order('created_at', { ascending: false })
-          .limit(5)
-
-        if (pastUserAttempts && pastUserAttempts.length > 0) {
-          const attemptIds = pastUserAttempts.map((a) => a.id)
-          const { data: pastAttFeedback } = await supabase
-            .from('attempt_feedback')
-            .select('id, problem_text, solution_text, status')
-            .in('attempt_id', attemptIds)
-            .eq('status', 'unresolved')
-            .limit(3)
-
-          if (pastAttFeedback && pastAttFeedback.length > 0) {
-            previousUnresolvedIssues = pastAttFeedback.map((f) => ({
-              id: f.id,
-              problemText: f.problem_text,
-              solutionText: f.solution_text,
-            }))
-          }
-        }
-      }
     } else if (Array.isArray(guestUnresolvedIssues)) {
       previousUnresolvedIssues = (guestUnresolvedIssues as GuestUnresolvedIssue[]).map((issue) => ({
         id: issue.id || 'guest-issue',
@@ -231,8 +203,6 @@ RETURN ONLY VALID JSON matching this exact schema (no markdown formatting, no te
 
     // 3. Save to Database if user is authenticated
     if (userId) {
-      let savedAttemptId: string | null = null
-
       // Save into sessions table
       const { data: sessionData } = await supabase
         .from('sessions')
@@ -240,15 +210,12 @@ RETURN ONLY VALID JSON matching this exact schema (no markdown formatting, no te
           user_id: userId,
           scenario_id: scenarioId,
           transcript: transcript.trim(),
-          duration_seconds: durationSeconds ?? 60,
           status: 'complete',
         })
         .select('id')
         .single()
 
       if (sessionData) {
-        savedAttemptId = sessionData.id
-
         // Insert score
         await supabase.from('scores').insert({
           session_id: sessionData.id,
@@ -275,29 +242,6 @@ RETURN ONLY VALID JSON matching this exact schema (no markdown formatting, no te
         await supabase.from('feedback_items').insert(feedbackRows)
       }
 
-      // Also save into user_attempts / attempt_feedback if those tables exist
-      const { data: userAttData } = await supabase
-        .from('user_attempts')
-        .insert({
-          user_id: userId,
-          scenario_id: scenarioId,
-          transcript: transcript.trim(),
-          score: aiResult.score,
-          duration_seconds: durationSeconds ?? 60,
-        })
-        .select('id')
-        .single()
-
-      if (userAttData) {
-        if (!savedAttemptId) savedAttemptId = userAttData.id
-        const attFbRows = aiResult.feedback.map((item) => ({
-          attempt_id: userAttData.id,
-          problem_text: item.problemText,
-          solution_text: item.solutionText,
-          status: item.status === 'resolved' ? 'resolved' : 'unresolved',
-        }))
-        await supabase.from('attempt_feedback').insert(attFbRows)
-      }
     }
 
     return NextResponse.json({

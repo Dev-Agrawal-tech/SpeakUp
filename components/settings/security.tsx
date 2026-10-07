@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Monitor, Smartphone, CheckCircle2, ShieldAlert } from 'lucide-react'
+import { Monitor, ShieldAlert } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/toast'
 import { SettingsHeader, SettingsSection, SettingsCard } from './primitives'
-import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 export function SecuritySettings() {
   const { toast } = useToast()
@@ -16,9 +15,6 @@ export function SecuritySettings() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [changing, setChanging] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-
-  // Dialogs
-  const [signoutDialog, setSignoutDialog] = useState(false)
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,12 +40,6 @@ export function SecuritySettings() {
       setNewPassword('')
       setConfirmPassword('')
     }
-  }
-
-  const handleSignoutOther = () => {
-    // UI mock for signing out other sessions
-    toast('success', 'Signed out of all other sessions')
-    setSignoutDialog(false)
   }
 
   const getPasswordStrength = () => {
@@ -148,49 +138,29 @@ export function SecuritySettings() {
       {/* Active Sessions */}
       <SettingsSection title="Active Sessions">
         <SettingsCard className="space-y-4">
-          <div className="flex items-center justify-between p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
-            <div className="flex items-center gap-3">
-              <Monitor className="h-5 w-5 text-blue-400" />
-              <div>
-                <p className="text-sm font-medium">Mac OS • Chrome</p>
-                <p className="text-xs text-blue-300/70">Mumbai, India (Current Session)</p>
-              </div>
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+            <Monitor className="h-5 w-5 text-blue-400" />
+            <div>
+              <p className="text-sm font-medium">Current browser session</p>
+              <p className="text-xs text-blue-300/70">This device is currently signed in.</p>
             </div>
-            <span className="flex items-center gap-1 text-[10px] text-blue-400 font-semibold uppercase tracking-wider bg-blue-500/20 px-2 py-0.5 rounded-full">
-              <CheckCircle2 className="h-3 w-3" /> Active Now
-            </span>
           </div>
 
-          <div className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/[0.08]">
-            <div className="flex items-center gap-3">
-              <Smartphone className="h-5 w-5 text-white/40" />
-              <div>
-                <p className="text-sm font-medium text-white/80">iOS • Safari</p>
-                <p className="text-xs text-white/40">Delhi, India • Last active 2 days ago</p>
-              </div>
-            </div>
+          <div className="flex items-center justify-between gap-4 p-3 rounded-xl bg-black/40 border border-white/[0.08]">
+            <p className="text-xs text-white/50">Remote session management is not connected to Supabase yet.</p>
+            <span className="shrink-0 px-2 py-1 rounded-md bg-white/[0.04] text-[10px] font-medium text-white/40 uppercase tracking-wider">
+              Coming Soon
+            </span>
           </div>
           
           <div className="pt-2">
-            <button 
-              onClick={() => setSignoutDialog(true)}
-              className="text-sm text-red-400 hover:text-red-300 transition font-medium flex items-center gap-2"
-            >
-              <ShieldAlert className="h-4 w-4" /> Sign out of other sessions
-            </button>
+            <span className="text-sm text-white/30 font-medium flex items-center gap-2">
+              <ShieldAlert className="h-4 w-4" /> Sign out of other sessions (Coming Soon)
+            </span>
           </div>
         </SettingsCard>
       </SettingsSection>
 
-      <ConfirmDialog
-        open={signoutDialog}
-        onClose={() => setSignoutDialog(false)}
-        onConfirm={handleSignoutOther}
-        title="Sign out of other sessions?"
-        description="This will sign you out of SpeakUp on all other devices and browsers immediately. You will remain logged in on this current device."
-        confirmLabel="Sign Out All"
-        variant="danger"
-      />
     </div>
   )
 }

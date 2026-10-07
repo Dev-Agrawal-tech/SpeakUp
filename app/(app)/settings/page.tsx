@@ -86,7 +86,7 @@ function SettingsOverview({
             onClick={() => onSelect(section.id)}
             className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300/20 hover:bg-white/[0.04] hover:shadow-lg"
           >
-            <div className="absolute -right-6 -top-6 h-16 w-16 rounded-full bg-blue-500/[0.06] transition-all duration-500 group-hover:scale-[2.5] group-hover:bg-blue-500/[0.1]" />
+            <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-blue-500/[0.06] transition-all duration-500 group-hover:scale-[2.5] group-hover:bg-blue-500/[0.1]" />
             <div className="relative">
               <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center mb-3 text-white/50 group-hover:text-blue-400 transition-colors">
                 {section.icon}

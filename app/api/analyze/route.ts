@@ -64,25 +64,27 @@ async function findOrCreateScenario(
     duration: number
   }
 ) {
-  if (!details.slug) return null
-
-  const { data, error } = await supabase
+  const existing = await supabase
     .from('scenarios')
-    .upsert(
-      {
-        slug: details.slug,
-        title: details.title,
-        description: details.prompt,
-        category: details.track,
-        track: details.track,
-        difficulty: details.level,
-        time_limit_sec: details.duration,
-        is_seed: true,
-      },
-      { onConflict: 'slug' }
-    )
     .select('id')
-    .single()
+    .eq('title', details.title)
+    .eq('category', details.track)
+    .maybeSingle()
+
+  if (existing.data) return existing.data
+  if (existing.error && existing.error.code !== 'PGRST116') {
+    console.error('Scenario lookup error:', existing.error.message)
+    return null
+  }
+
+  const { data, error } = await supabase.from('scenarios').insert({
+    title: details.title,
+    description: details.prompt,
+    category: details.track,
+    difficulty: details.level,
+    time_limit_sec: details.duration,
+    is_seed: true,
+  }).select('id').single()
 
   if (error) {
     console.error('Scenario save error:', error.message)

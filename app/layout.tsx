@@ -12,47 +12,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased theme-dark" suppressHydrationWarning>
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                let stored = localStorage.getItem('speakup_settings');
-                if (stored) {
-                  let settings = JSON.parse(stored);
-                  
-                  // Appearance
-                  if (settings.appearance) {
-                    if (settings.appearance.theme) {
-                      document.documentElement.classList.remove('theme-dark', 'theme-light', 'theme-system');
-                      document.documentElement.classList.add('theme-' + settings.appearance.theme);
-                    }
-                    if (settings.appearance.accentColor) {
-                      document.documentElement.setAttribute('data-accent', settings.appearance.accentColor);
-                    }
-                    if (settings.appearance.uiDensity) {
-                      document.documentElement.setAttribute('data-density', settings.appearance.uiDensity);
-                    }
-                    if (settings.appearance.animations === false) {
-                      document.documentElement.classList.add('reduce-motion-override');
-                    }
-                  }
-                  
-                  // Accessibility
-                  if (settings.accessibility) {
-                    if (settings.accessibility.reduceMotion) {
-                      document.documentElement.classList.add('reduce-motion-override');
-                    }
-                    if (settings.accessibility.highContrast) {
-                      document.documentElement.classList.add('high-contrast');
-                    }
-                    if (settings.accessibility.fontSize) {
-                      document.documentElement.setAttribute('data-font-size', settings.accessibility.fontSize);
-                    }
-                  }
-                }
-              } catch (e) {}
+                const root = document.documentElement;
+                const settings = JSON.parse(localStorage.getItem('speakup_settings') || '{}');
+                const appearance = settings.appearance || {};
+                const accessibility = settings.accessibility || {};
+                const theme = ['dark', 'light', 'system'].includes(appearance.theme) ? appearance.theme : 'dark';
+                const media = window.matchMedia('(prefers-color-scheme: light)');
+                const applyTheme = () => {
+                  root.dataset.theme = theme === 'system' ? (media.matches ? 'light' : 'dark') : theme;
+                  root.dataset.themePreference = theme;
+                };
+                applyTheme();
+                root.dataset.accent = ['blue', 'purple', 'emerald', 'rose'].includes(appearance.accentColor) ? appearance.accentColor : 'blue';
+                root.dataset.density = ['compact', 'normal', 'relaxed'].includes(appearance.uiDensity) ? appearance.uiDensity : 'normal';
+                root.dataset.fontSize = ['small', 'medium', 'large'].includes(accessibility.fontSize) ? accessibility.fontSize : 'medium';
+                root.classList.toggle('high-contrast', accessibility.highContrast === true);
+                root.classList.toggle('reduce-motion-override', accessibility.reduceMotion === true || appearance.animations === false);
+                media.addEventListener('change', () => { if (root.dataset.themePreference === 'system') root.dataset.theme = media.matches ? 'light' : 'dark'; });
+              } catch {}
             `,
           }}
         />
