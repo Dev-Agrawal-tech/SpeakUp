@@ -31,14 +31,14 @@ export function AccessibilitySettings() {
   const handleSave = () => {
     if (!settings) return
     setSaving(true)
-    const current = readSettings()
-    
-    const updated = { ...current, accessibility: settings }
+    const updated = { ...readSettings(), accessibility: settings }
+
     if (!writeSettings(updated)) {
       toast('error', 'Could not save accessibility preferences on this device.')
       setSaving(false)
       return
     }
+
     applySettingsToDocument(updated)
 
     dirtyCounter.reset()

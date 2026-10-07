@@ -2,18 +2,30 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+<<<<<<< HEAD
 			"label": "SpeakUp readiness recheck",
+=======
+			"label": "SpeakUp readiness baseline",
+>>>>>>> 96262dad77b4ea01763b720a1e9d16161d3cb499
 			"type": "shell",
 			"command": "cmd",
 			"args": [
 				"/c",
+<<<<<<< HEAD
 				"git status --short --branch && npm run lint && npx tsc --noEmit && npm run build"
+=======
+				"git status --short --branch && git log -1 --oneline && node --version && npm --version && npm run lint && npx tsc --noEmit && npm run build"
+>>>>>>> 96262dad77b4ea01763b720a1e9d16161d3cb499
 			],
 			"isBackground": false,
 			"problemMatcher": []
 		},
 		{
+<<<<<<< HEAD
 			"label": "SpeakUp visual preview",
+=======
+			"label": "SpeakUp local preview",
+>>>>>>> 96262dad77b4ea01763b720a1e9d16161d3cb499
 			"type": "shell",
 			"command": "npm",
 			"args": [
@@ -21,7 +33,11 @@
 				"dev",
 				"--",
 				"--port",
+<<<<<<< HEAD
 				"3000"
+=======
+				"3001"
+>>>>>>> 96262dad77b4ea01763b720a1e9d16161d3cb499
 			],
 			"isBackground": true,
 			"problemMatcher": []

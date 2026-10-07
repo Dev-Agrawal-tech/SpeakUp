@@ -31,9 +31,8 @@ export function AppearanceSettings() {
   const handleSave = () => {
     if (!settings) return
     setSaving(true)
-    const current = readSettings()
-    
-    const updated = { ...current, appearance: settings }
+    const updated = { ...readSettings(), appearance: settings }
+
     if (!writeSettings(updated)) {
       toast('error', 'Could not save appearance preferences on this device.')
       setSaving(false)
@@ -70,6 +69,8 @@ export function AppearanceSettings() {
               return (
                 <button
                   key={theme.id}
+                  type="button"
+                  aria-pressed={isSelected}
                   onClick={() => updateSetting('theme', theme.id as AppSettings['appearance']['theme'])}
                   className={`flex flex-col items-center p-4 rounded-xl border transition-all ${
                     isSelected

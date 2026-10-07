@@ -6,7 +6,54 @@ Use this guide with the [production-readiness roadmap](PRODUCTION_READINESS_ROAD
 
 Work on one numbered step at a time. Before starting a step, ask for: why it matters, what access/information you need, what to do in order, and how to verify the result. Save evidence such as command output, screenshots, passing tests or Supabase results. If a check fails, pause and understand why before moving ahead. Do not make a production database change while learning it; test migrations in a branch/staging project first. Never paste passwords, service-role keys, Groq keys or other secrets into chat or documentation.
 
-## 1. Establish a safe starting point
+## Shared phase and point sequence
+
+This is the canonical sequence shared with the roadmap. It has Phase 0 for preparation, followed by five implementation phases. There are exactly 21 numbered points. The supporting checklists below give additional details for the matching points; they are not a separate sequence.
+
+### Phase 0: Prepare and inspect (points 1-3)
+
+1. **Establish a safe baseline.** Record branch, working changes, runtime versions, deployment target and current lint/type/build/test results. See the supporting baseline checklist.
+2. **Confirm product requirements.** Review the PRD/TRD and repository guidance, reconcile stale Next.js references, and label features Works, Needs Work or Coming Soon. See the launch-scope checklist.
+3. **Inspect Supabase read-only.** Compare live tables, columns, RLS policies, functions, storage and Auth settings with migrations. Record advisor results before planning database changes. See the Supabase checklist below and the dated snapshot in this file.
+
+### Phase 1: Appearance and accessibility (points 4-6)
+
+4. **Choose the theme promise.** Implement Dark, Light and System, or disable unsupported choices rather than letting a nonworking option be selected.
+5. **Apply visual settings globally.** Use shared CSS tokens across auth, dashboard, practice, progress, scenarios and settings; wire accent, density, font size, contrast and motion choices to real behavior.
+6. **Make preference state reliable.** Validate/version values, safely merge defaults, avoid theme flashes, and decide which choices are device-only versus synced to the account.
+
+### Phase 2: Profile and database safety (points 7-10)
+
+7. **Align profile data.** Verify profile columns and case-insensitive username rules; add only missing schema through reviewed migrations.
+8. **Secure avatars.** Verify bucket policies, file limits, owner paths, replacement/removal and cross-user access.
+9. **Choose settings persistence.** If preferences should follow the account, use a user-owned `user_settings` record with validation and RLS; migrate local values safely.
+10. **Review database permissions.** Design least-privilege RLS for each required action, inspect the SECURITY DEFINER function's body/grants, and review indexes. Do not make all tables public to clear an advisor warning.
+
+### Phase 3: Account, security and privacy (points 11-14)
+
+11. **Finish real Auth flows.** Show real email-confirmation state and verify password change, email change and TOTP challenge behavior.
+12. **Make security controls honest.** Use real supported session actions; keep unsupported session revocation, SMS and integrations Coming Soon.
+13. **Implement data actions.** Export, clear history and delete accounts only through owner-checked operations, with confirmation, safe cleanup and truthful success/error states.
+14. **Honor privacy choices.** Default optional analytics/AI-training consent off and ensure the product honors saved choices; remove or clarify controls that have no effect.
+
+### Phase 4: Core operations and cost safety (points 15-18)
+
+15. **Protect pages and APIs.** Define guest access and check authentication/ownership on every private route; middleware alone is not enough.
+16. **Validate requests and limit AI use.** Bound audio/transcript/token use, add rate limits and handle provider errors without disguising fallbacks as live AI.
+17. **Make history, progress and limits accurate.** Choose one persistence path, make writes retry-safe, use real user-owned data, and enforce or remove displayed plan limits.
+18. **Finish scheduled jobs and data lifecycle.** Implement authorized/idempotent crons or remove schedules. Define recording consent, retention, deletion, backups and provider handling.
+
+### Phase 5: Tests and release (points 19-21)
+
+19. **Add automated tests.** Cover Auth/MFA, settings, usernames, RLS, AI failures, data actions, rate limits and cron authorization; make them CI gates.
+20. **Run manual and browser tests.** Test responsive/accessibility behavior, the complete practice loop and two-account isolation; save evidence.
+21. **Configure and release safely.** Separate environment settings, protect secrets, test migrations in staging, approve Preview, then deploy Production with monitoring, backups and rollback.
+
+## Supporting detailed checklists
+
+The checklists below contain deeper actions and pass criteria. Use them as references for the numbered points above, not as a second numbered plan.
+
+### Baseline checklist (supports Point 1)
 
 **Why:** You need to know what already works and avoid confusing old problems with new ones.
 
@@ -30,7 +77,7 @@ Work on one numbered step at a time. Before starting a step, ask for: why it mat
 
 **How to verify:** A clean install reproduces the lint, TypeScript and build results in CI. Record old failures separately from failures caused by later changes. Record the release commit and a rollback owner.
 
-## 2. Confirm product requirements and launch scope
+### Launch-scope checklist (supports Point 2)
 
 **Why:** UI progress labels are not proof that features work. The product must not promise a placeholder as a working feature.
 
@@ -45,7 +92,7 @@ Work on one numbered step at a time. Before starting a step, ask for: why it mat
 
 **How to verify:** Product and engineering agree on the launch feature list. Every visible setting is classified honestly, and unfinished features are disabled or clearly marked.
 
-## 3. Inspect Supabase before changing its schema
+### Supabase inspection checklist (supports Points 3 and 10)
 
 **Why:** A migration or policy can block sign-in/data access or expose private user records. Check the real database first.
 
@@ -69,7 +116,7 @@ The Performance Advisor reported seven foreign keys without covering indexes and
 
 **How to verify:** User A cannot access user B's profile, session, score, feedback or file. Anonymous access is limited to intended public content. Needed app operations still work. Record migration versions and advisor results. No schema change was made by the inspection above.
 
-## 4. Make Appearance and accessibility work across the app
+### Appearance checklist (supports Points 4-6)
 
 **Why:** A theme card that only changes local state is misleading. Every selected preference should be visible throughout the product.
 
@@ -86,7 +133,7 @@ The Performance Advisor reported seven foreign keys without covering indexes and
 
 **How to verify:** Change each option, save, navigate through the listed pages, reload, and verify the selection still has a visible effect. Test OS theme changes, keyboard focus, readable contrast and reduced motion.
 
-## 5. Align profile, usernames, avatars and account preferences
+### Profile checklist (supports Points 7-9)
 
 **Why:** Profile fields must exist in the database, usernames must be unique, and files/preferences must not cross between accounts.
 
@@ -103,7 +150,7 @@ The Performance Advisor reported seven foreign keys without covering indexes and
 
 **How to verify:** Save/reload each field, try a duplicate username, and upload/replace/remove an avatar. Repeat with accounts A and B; B must not be able to access or change A's private values/files.
 
-## 6. Make account, security and privacy actions real
+### Account, security and privacy checklist (supports Points 11, 12 and 14)
 
 **Why:** A false "success" for verification, MFA, session revocation or account deletion can leave the user's account less safe than the interface suggests.
 
@@ -119,7 +166,7 @@ The Performance Advisor reported seven foreign keys without covering indexes and
 
 **How to verify:** Test a fresh and returning account; check pending email confirmation, MFA challenge and error states. Confirm no unsupported action reports success.
 
-## 7. Implement export, clear-history and account deletion safely
+### Data-action checklist (supports Point 13)
 
 **Why:** Users must be able to obtain or delete their own information without affecting another account or leaving copies behind.
 
@@ -135,7 +182,7 @@ The Performance Advisor reported seven foreign keys without covering indexes and
 
 **How to verify:** Export A's data and confirm it contains only A's rows. Clear/delete A and verify B's records remain unchanged. Confirm all expected files are removed and failure states are honest.
 
-## 8. Secure APIs and control AI spending
+### API and AI-cost checklist (supports Points 15-16)
 
 **Why:** Public or weakly protected APIs can expose data or let repeated requests create unbounded Groq charges.
 
@@ -151,7 +198,7 @@ The Performance Advisor reported seven foreign keys without covering indexes and
 
 **How to verify:** Test unauthenticated calls, account A/B isolation, oversized and malformed requests, repeated calls and provider failures. Confirm rejected requests do not leak secrets or trigger unlimited cost.
 
-## 9. Complete scheduled jobs and audio/data lifecycle
+### Scheduled jobs and audio-lifecycle checklist (supports Point 18)
 
 **Why:** A Vercel schedule that returns "configured" is not a working job. Audio retention and deletion must match what users were told.
 
@@ -165,7 +212,7 @@ The Performance Advisor reported seven foreign keys without covering indexes and
 
 **How to verify:** Direct unauthorized cron calls fail; scheduled operations perform real work once; alerts detect failures; an account's audio/transcript can be traced through retention and deletion.
 
-## 10. Validate the core practice loop and product claims
+### Core-practice checklist (supports Points 17 and 20)
 
 **Why:** Users need a complete scenario-to-speak-to-feedback-to-retry journey, not screens that only look complete.
 
@@ -181,7 +228,7 @@ The Performance Advisor reported seven foreign keys without covering indexes and
 
 **How to verify:** Fresh and returning test accounts complete every advertised flow and recover cleanly from failures. No placeholder data is presented as real.
 
-## 11. Add operational visibility and recovery
+### Operations checklist (supports Points 19 and 21)
 
 **Why:** When production fails, the team needs enough safe information to detect, diagnose, communicate and recover.
 
@@ -196,7 +243,7 @@ The Performance Advisor reported seven foreign keys without covering indexes and
 
 **How to verify:** A simulated incident generates an alert and the team can follow the runbook to restore service and communicate accurately.
 
-## 12. Configure Preview, Production and make the release decision
+### Deployment checklist (supports Point 21)
 
 **Why:** Localhost success does not prove the deployed app has valid credentials, email links, OAuth redirects, cron authorization, backups or support.
 

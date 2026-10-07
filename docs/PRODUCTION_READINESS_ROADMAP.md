@@ -41,68 +41,64 @@ The MCP check did not verify full column definitions, policy expressions, storag
 
 **Goal:** Know what SpeakUp promises, what the code currently does, and what the live database contains before changing anything.
 
-- Review the PRD/TRD DOCX documents, `docs/PROMPT.md`, settings prompt/progress/phases, `AGENTS.md`, actual routes, migrations and Vercel config. `docs/_prd_extract` was empty during review, so summarize the DOCX requirements and resolve conflicts. Align the stale Next.js 14 guidance with the pinned Next.js 16.2.9 version.
-- Record branch, working-tree status and target release. Run lint, TypeScript checking, build and available tests. Separate existing failures from new failures. Add a test command and CI gate before broad launch.
-- Inspect Supabase columns, constraints, indexes, RLS policies, functions/triggers and Storage. Inspect Auth provider, callback, email and password settings. Compare live state with migrations; do not run guessed SQL against Production.
-- Record features as Works, Needs backend work, or Coming Soon. Paid plans remain disabled; SMS and unsupported integrations stay Coming Soon.
+1. **Reconcile product requirements.** Review the PRD/TRD DOCX documents, `docs/PROMPT.md`, settings prompt/progress/phases, `AGENTS.md`, routes, migrations and Vercel config. Summarize the DOCX requirements because `docs/_prd_extract` was empty. Align the stale Next.js 14 guidance with the pinned Next.js 16.2.9 version.
+2. **Record the engineering baseline.** Record branch, working-tree status, target release and Node/npm versions. Run lint, TypeScript, build and available tests; separate old failures from new ones. Add a test command and CI gate before broad launch.
+3. **Audit Supabase without changing Production.** Inspect live columns, constraints, indexes, RLS policies, functions/triggers, Storage, Auth providers, callbacks, email/password settings and advisors. Compare with migrations. Use staging for changes and do not run guessed SQL against Production.
+
+The three steps above are preparation. They are followed by five implementation phases with points 4–21. The same point numbers are used in both production-readiness documents.
 
 **Exit check:** Product requirements, code baseline, live Supabase findings, unresolved questions and rollback owner are documented. No production migration is applied just to complete the audit.
 
-## Phase 1: Make Appearance and accessibility work
+## Phase 1: Make Appearance and accessibility work (points 4–6)
 
 **Goal:** A saved preference changes the whole app, not only the Settings preview.
 
-- Decide whether Dark, Light and System are supported. Since all three appear in Settings, the recommended choice is to implement them; otherwise disable unsupported selections and mark them Coming Soon.
-- Replace hard-coded page, card, text, border and field colors with shared semantic CSS tokens across auth, dashboard, practice, progress, scenario and settings routes.
-- Wire System mode to the operating-system theme. Make accent color, density, font size, high contrast and reduced motion affect actual CSS and JavaScript behavior.
-- Keep one validated/versioned settings store, safely merge defaults for old data, prevent a hydration flash, and decide which values should sync to the signed-in user's other devices.
+4. **Choose the supported theme options.** Implement Dark, Light and System because all three appear in Settings, or disable unsupported choices and mark them Coming Soon.
+5. **Apply theme and accessibility styles globally.** Replace hard-coded colors with semantic CSS tokens on auth, dashboard, practice, progress, scenario and settings routes. Wire System mode, accent color, density, font size, high contrast and reduced motion to actual behavior.
+6. **Make preference state reliable.** Validate/version saved values, merge defaults for old data, avoid a hydration flash, support reset, and decide which preferences should sync across a user's devices.
 
 **Exit check:** All supported themes and accessibility choices work on every route, survive reload, and remain readable and usable.
 
-## Phase 2: Secure profile, preferences and database policies
+## Phase 2: Secure profile, preferences and database policies (points 7–10)
 
 **Goal:** Each account's profile, avatar and preferences have a verified schema and correct owner-only access.
 
-- Compare fields used by `components/settings/profile.tsx` with the live `public.users` schema. Add only genuinely missing fields through reviewed additive migrations. Passwords remain in Supabase Auth, never in `public.users`.
-- Preserve lowercase, case-insensitive username uniqueness. Add availability validation to profile edits and handle unique-index conflicts caused by simultaneous requests.
-- Verify the `avatars` bucket and its policies. Restrict file type/size and user-owned paths; test upload, replace, remove and cross-user isolation.
-- If settings should follow a user across devices, add a `user_settings` table with an Auth user foreign key, validated JSON settings, timestamps and owner-only RLS. Migrate local settings without trusting client-supplied user IDs.
-- Review and safely remediate the six missing-policy findings. Give scenarios only the public access they need; keep user records private. Inspect and restrict `rls_auto_enable()` if clients do not need to execute it. Add indexes only after checking query patterns and existing indexes.
+7. **Align profile fields and username rules.** Compare profile fields with the live `public.users` schema; add only missing fields through reviewed migrations. Preserve Auth-managed passwords and lowercase case-insensitive username uniqueness, including profile edits and concurrent signup conflicts.
+8. **Secure avatar storage.** Verify the bucket and owner-scoped policies, file limits and object paths. Test upload, replace, remove and cross-user isolation.
+9. **Choose preference persistence.** If preferences should follow accounts across devices, add `user_settings` linked to Auth with validated data, timestamps and owner-only RLS. Migrate local data safely; never trust a client-supplied user ID.
+10. **Review and fix database permissions.** Remediate the six missing-policy findings with least-privilege rules. Inspect `rls_auto_enable()` grants and add indexes only after checking existing indexes and query patterns.
 
 **Exit check:** Anonymous access and two-user tests prove intended behavior; user A cannot access user B's profile, recordings or progress; required profile fields and avatars work.
 
-## Phase 3: Make account, security and privacy settings truthful
+## Phase 3: Make account, security and privacy settings truthful (points 11-14)
 
 **Goal:** No interface reports a security or data operation as successful unless it really completed.
 
-- Derive email verification state from Supabase Auth. Show email changes as pending until confirmed. Test password changes and TOTP enrollment, challenge, disable and fresh-login enforcement.
-- Remove sample device/session data. Implement supported session revocation or label it Coming Soon. Keep mobile/SMS verification unavailable until a provider and safeguards are configured.
-- Implement user-scoped export, Clear History and Delete Account. Use authenticated server routes and server-only service-role credentials where required. Confirm ownership, safe deletion order, re-authentication, storage cleanup and failure recovery.
-- Default analytics/AI-training consent to off and make downstream processing honor it. Remove or clarify controls that do not affect actual behavior.
-- Keep paid plan buttons disabled. Do not fake API key creation or connected services.
+11. **Complete real email, password and MFA flows.** Read verification from Supabase Auth, show pending email changes, and test password changes plus TOTP enforcement at a fresh login.
+12. **Make security controls honest.** Remove sample sessions. Implement supported session revocation or label it Coming Soon. Keep SMS unavailable until a provider and safeguards are ready; keep paid plans and unsupported integrations disabled.
+13. **Implement user-scoped data actions.** Build export, Clear History and Delete Account with authenticated server routes, ownership checks, re-authentication/confirmation, safe deletion order, storage cleanup and failure handling.
+14. **Make consent effective.** Default analytics/AI-training consent off, persist and honor choices, and remove or clarify controls that do not affect real behavior.
 
 **Exit check:** Test accounts A and B prove actions affect only the requesting user. Pending confirmations remain pending; errors never show success.
 
-## Phase 4: Secure the core product and operations
+## Phase 4: Secure the core product and operations (points 15-18)
 
 **Goal:** Protect user data, control Groq costs, and make practice history and scheduled jobs dependable.
 
-- Decide guest versus signed-in access. Protect every private page and API independently; middleware alone is not authorization. Derive user identity from a verified session.
-- Validate API inputs and AI output. Bound audio size/duration, transcript length, model tokens, concurrency, timeouts and retries. Add production-safe per-user/IP limits to costly AI endpoints. Missing Groq configuration must fail clearly, not silently masquerade as AI feedback.
-- Reconcile duplicate history paths (`sessions`/`scores`/`feedback_items` versus `user_attempts`/`attempt_feedback`). Make writes consistent and retry-safe; drive history and progress from real, owner-scoped data.
-- Enforce displayed Free limits server-side or remove inaccurate plan claims. Implement cron jobs with authorization, idempotency and monitoring, or remove placeholder schedules.
-- Define consent, retention and deletion for audio/transcripts. Include backups, logs, third-party processing and Vercel/Supabase/Groq spending alerts.
+15. **Protect pages and APIs.** Decide guest access, protect every private page/API independently, and derive identity from a verified session. Middleware alone is not authorization.
+16. **Validate requests and control AI costs.** Bound audio, transcript, token and concurrency use; add production-safe per-user/IP rate limits and clear provider errors. Never present heuristic fallback as live AI feedback.
+17. **Make history, progress and plan limits real.** Reconcile duplicate persistence paths, make writes retry-safe, use owner-scoped data, and enforce displayed Free limits or remove inaccurate claims.
+18. **Complete jobs and data lifecycle.** Implement authorized, idempotent cron jobs or remove placeholder schedules. Define audio/transcript consent, retention, deletion, backups and third-party processing.
 
 **Exit check:** Cross-user access, malformed/abusive requests, provider failure, retries and cron authorization are tested. Product claims match real behavior.
 
-## Phase 5: Test, deploy and operate
+## Phase 5: Test, deploy and operate (points 19-21)
 
 **Goal:** Prove the release works and can be supported, monitored and recovered.
 
-- Add automated and browser tests for authentication/MFA, themes/settings, username uniqueness, RLS, practice failures, export/delete, rate limits and cron authorization.
-- Test desktop/tablet/mobile, keyboard/screen reader, focus/Escape, reduced motion, contrast, empty/loading/error states and the complete practice loop. Use two accounts to verify data isolation.
-- Configure separate local, Preview and Production settings. Keep service-role and Groq secrets server-only. Configure OAuth redirects, confirmation/reset email SMTP, password protection and cron/rate-limit settings only for enabled features.
-- Apply reviewed migrations to staging first, verify RLS/storage/advisors, run Preview smoke tests, then deploy Production with backup, rollback, monitoring and support plans.
+19. **Add automated tests.** Cover authentication/MFA, themes/settings, usernames, RLS, practice failures, data actions, rate limits and cron authorization; require checks in CI.
+20. **Run manual and browser tests.** Test responsive layouts, accessibility, the full practice loop and two-account data isolation; record evidence for launch claims.
+21. **Configure and release safely.** Separate local/Preview/Production settings, protect server secrets, test migrations in staging, verify Preview, then promote with backups, monitoring, rollback and sign-off.
 
 **Exit check:** CI and release tests pass; security/privacy blockers are resolved or explicitly accepted by an accountable owner; Preview is approved; operational recovery has been demonstrated.
 

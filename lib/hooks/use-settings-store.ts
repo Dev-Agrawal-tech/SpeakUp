@@ -104,7 +104,9 @@ const defaultSettings: AppSettings = {
 type SettingsRecord = Record<string, unknown>
 
 function asRecord(value: unknown): SettingsRecord {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as SettingsRecord : {}
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as SettingsRecord
+    : {}
 }
 
 function booleanValue(value: unknown, fallback: boolean): boolean {
@@ -125,7 +127,22 @@ export function normalizeSettings(value: unknown): AppSettings {
 
   return {
     version: 1,
-    notifications: Object.fromEntries(Object.keys(defaultSettings.notifications).map((key) => [key, booleanValue(notifications[key], defaultSettings.notifications[key as keyof AppSettings['notifications']])])) as AppSettings['notifications'],
+    notifications: {
+      loginAlerts: booleanValue(notifications.loginAlerts, defaultSettings.notifications.loginAlerts),
+      securityNotifications: booleanValue(notifications.securityNotifications, defaultSettings.notifications.securityNotifications),
+      accountActivity: booleanValue(notifications.accountActivity, defaultSettings.notifications.accountActivity),
+      productUpdates: booleanValue(notifications.productUpdates, defaultSettings.notifications.productUpdates),
+      newFeatures: booleanValue(notifications.newFeatures, defaultSettings.notifications.newFeatures),
+      newsletter: booleanValue(notifications.newsletter, defaultSettings.notifications.newsletter),
+      practiceReminders: booleanValue(notifications.practiceReminders, defaultSettings.notifications.practiceReminders),
+      emailChannel: booleanValue(notifications.emailChannel, defaultSettings.notifications.emailChannel),
+      inAppChannel: booleanValue(notifications.inAppChannel, defaultSettings.notifications.inAppChannel),
+      pushChannel: booleanValue(notifications.pushChannel, defaultSettings.notifications.pushChannel),
+      smsChannel: booleanValue(notifications.smsChannel, defaultSettings.notifications.smsChannel),
+      sounds: booleanValue(notifications.sounds, defaultSettings.notifications.sounds),
+      toastPopups: booleanValue(notifications.toastPopups, defaultSettings.notifications.toastPopups),
+      desktopNotifications: booleanValue(notifications.desktopNotifications, defaultSettings.notifications.desktopNotifications),
+    },
     privacy: {
       profileVisibility: enumValue(privacy.profileVisibility, ['public', 'private', 'connections'] as const, defaultSettings.privacy.profileVisibility),
       activityVisible: booleanValue(privacy.activityVisible, defaultSettings.privacy.activityVisible),
@@ -141,7 +158,7 @@ export function normalizeSettings(value: unknown): AppSettings {
       animations: booleanValue(appearance.animations, defaultSettings.appearance.animations),
     },
     language: {
-      displayLanguage: 'en',
+      displayLanguage: enumValue(language.displayLanguage, ['en'] as const, defaultSettings.language.displayLanguage),
       timeZone: typeof language.timeZone === 'string' ? language.timeZone : defaultSettings.language.timeZone,
       dateFormat: enumValue(language.dateFormat, ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'] as const, defaultSettings.language.dateFormat),
       timeFormat: enumValue(language.timeFormat, ['12h', '24h'] as const, defaultSettings.language.timeFormat),
@@ -156,24 +173,31 @@ export function normalizeSettings(value: unknown): AppSettings {
 
 export function applySettingsToDocument(settings: AppSettings): void {
   if (typeof window === 'undefined') return
+
   const root = document.documentElement
-  const media = window.matchMedia('(prefers-color-scheme: light)')
+  const systemTheme = window.matchMedia('(prefers-color-scheme: light)')
   const applyTheme = () => {
-    root.dataset.theme = settings.appearance.theme === 'system' ? (media.matches ? 'light' : 'dark') : settings.appearance.theme
+    root.dataset.theme = settings.appearance.theme === 'system'
+      ? systemTheme.matches ? 'light' : 'dark'
+      : settings.appearance.theme
     root.dataset.themePreference = settings.appearance.theme
   }
+
   applyTheme()
+  if (!root.dataset.systemThemeListener) {
+    systemTheme.addEventListener('change', () => {
+      if (root.dataset.themePreference === 'system') {
+        root.dataset.theme = systemTheme.matches ? 'light' : 'dark'
+      }
+    })
+    root.dataset.systemThemeListener = 'true'
+  }
+
   root.dataset.accent = settings.appearance.accentColor
   root.dataset.density = settings.appearance.uiDensity
   root.dataset.fontSize = settings.accessibility.fontSize
   root.classList.toggle('high-contrast', settings.accessibility.highContrast)
   root.classList.toggle('reduce-motion-override', settings.accessibility.reduceMotion || !settings.appearance.animations)
-  if (!root.dataset.systemThemeListener) {
-    media.addEventListener('change', () => {
-      if (root.dataset.themePreference === 'system') root.dataset.theme = media.matches ? 'light' : 'dark'
-    })
-    root.dataset.systemThemeListener = 'true'
-  }
 }
 
 export function readSettings(): AppSettings {

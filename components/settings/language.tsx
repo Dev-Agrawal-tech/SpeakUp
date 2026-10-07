@@ -31,7 +31,7 @@ export function LanguageSettings() {
     if (!settings) return
     setSaving(true)
     const current = readSettings()
-    
+
     if (!writeSettings({ ...current, language: settings })) {
       toast('error', 'Could not save language preferences on this device.')
       setSaving(false)
