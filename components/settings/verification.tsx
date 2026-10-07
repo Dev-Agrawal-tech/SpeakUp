@@ -170,18 +170,18 @@ export function VerificationSettings() {
         <SettingsCard>
           <form onSubmit={handleUpdateEmail}>
             <label className="block text-xs font-medium text-white/60 mb-1.5">Change Email Address</label>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input 
                 type="email" 
                 value={newEmail}
                 onChange={e => setNewEmail(e.target.value)}
                 placeholder="Enter new email address"
-                className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/[0.08] text-sm focus:border-blue-500/50 focus:outline-none transition" 
+                className="flex-1 w-full px-3 py-2 rounded-xl bg-black/40 border border-white/[0.08] text-sm focus:border-blue-500/50 focus:outline-none transition" 
               />
               <button 
                 type="submit"
                 disabled={!newEmail || newEmail === email || sendingEmail}
-                className="px-5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white text-sm font-medium transition disabled:opacity-50 whitespace-nowrap"
+                className="w-full sm:w-auto px-5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white text-sm font-medium transition disabled:opacity-50 whitespace-nowrap"
               >
                 {sendingEmail ? 'Sending...' : 'Update Email'}
               </button>
@@ -213,8 +213,8 @@ export function VerificationSettings() {
 
           <form onSubmit={handleAddMobile}>
             <label className="block text-xs font-medium text-white/60 mb-1.5">Add Mobile Number</label>
-            <div className="flex gap-3">
-              <div className="flex-1 relative">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 w-full relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">+91</span>
                 <input 
                   type="tel" 
@@ -227,7 +227,7 @@ export function VerificationSettings() {
               <button 
                 type="submit"
                 disabled={mobileNumber.length < 10}
-                className="px-5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white text-sm font-medium transition disabled:opacity-50 whitespace-nowrap"
+                className="w-full sm:w-auto px-5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white text-sm font-medium transition disabled:opacity-50 whitespace-nowrap"
               >
                 Send OTP
               </button>

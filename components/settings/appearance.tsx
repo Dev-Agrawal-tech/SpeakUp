@@ -58,7 +58,7 @@ export function AppearanceSettings() {
 
       <SettingsSection title="Theme">
         <SettingsCard>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {[
               { id: 'dark', label: 'Dark', icon: Moon, desc: 'Natively dark' },
               { id: 'light', label: 'Light', icon: Sun, desc: 'Bright and clear' },
@@ -125,12 +125,12 @@ export function AppearanceSettings() {
         <SettingsCard className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-white/80 mb-3">UI Density</label>
-            <div className="flex rounded-xl bg-white/[0.04] p-1 w-fit border border-white/[0.08]">
+            <div className="flex flex-wrap rounded-xl bg-white/[0.04] p-1 w-full sm:w-fit border border-white/[0.08]">
               {['compact', 'normal', 'relaxed'].map((density) => (
                 <button
                   key={density}
                   onClick={() => updateSetting('uiDensity', density as AppSettings['appearance']['uiDensity'])}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                     settings.uiDensity === density
                       ? 'bg-white/10 text-white shadow-sm'
                       : 'text-white/40 hover:text-white/80'
@@ -153,7 +153,7 @@ export function AppearanceSettings() {
         </SettingsCard>
       </SettingsSection>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-4 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-0 sm:bottom-4 z-10 bg-[#0A0A0A]/95 p-3 sm:p-4 rounded-2xl backdrop-blur-md">
         <button
           onClick={handleSave}
           disabled={!dirtyCounter.isDirty || saving}

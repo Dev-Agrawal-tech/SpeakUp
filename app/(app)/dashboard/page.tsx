@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
   ArrowRight, Clock3, Layers3, Search, LogOut,
@@ -9,10 +10,13 @@ import {
 } from 'lucide-react'
 import { scenarioTracks, LEVELS, type ScenarioLevel } from '@/lib/scenarios/catalogue'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslation } from '@/lib/hooks/use-translation'
 
 export default function DashboardPage() {
+  const t = useTranslation()
   const router = useRouter()
   const [displayName, setDisplayName] = useState('Student')
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [selectedTrackId, setSelectedTrackId] = useState(scenarioTracks[0].id)
   const [selectedLevel, setSelectedLevel] = useState<ScenarioLevel | 'All'>('All')
   const [searchQuery, setSearchQuery] = useState('')
@@ -33,7 +37,7 @@ export default function DashboardPage() {
 
       const { data: profile } = await supabase
         .from('users')
-        .select('username')
+        .select('username, avatar_url')
         .eq('id', user.id)
         .maybeSingle()
 
@@ -43,7 +47,10 @@ export default function DashboardPage() {
         user.email?.split('@')[0] ||
         'Student'
 
-      if (active) setDisplayName(username)
+      if (active) {
+        setDisplayName(username)
+        setAvatarUrl(profile?.avatar_url || null)
+      }
     }
 
     void loadUserName()
@@ -112,13 +119,13 @@ export default function DashboardPage() {
           <Link href="/" className="text-xl font-bold tracking-tight">
             Speak<span className="text-blue-500">Up</span>
           </Link>
-          <p className="text-[11px] text-white/30 mt-1">AI Communication Coach</p>
+          <p className="text-[11px] text-white/30 mt-1">{t.sidebar.coach}</p>
         </div>
 
         {/* Category List */}
         <nav className="flex-1 overflow-y-auto px-3 pb-4">
           <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider text-white/25">
-            Categories
+            {t.sidebar.categories}
           </p>
           <div className="space-y-0.5">
             {scenarioTracks.map((t) => {
@@ -150,12 +157,24 @@ export default function DashboardPage() {
         {/* Sidebar Footer */}
         <div className="px-4 py-4 border-t border-white/[0.06]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-xs font-bold">
-              {displayName.charAt(0).toUpperCase()}
-            </div>
+            {avatarUrl ? (
+              <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/10 shrink-0">
+                <Image 
+                  src={avatarUrl} 
+                  alt="Avatar" 
+                  fill
+                  className="object-cover" 
+                  unoptimized
+                />
+              </div>
+            ) : (
+              <div className="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-xs font-bold">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium truncate">{displayName}</p>
-              <p className="text-[10px] text-white/30">Free Plan</p>
+              <p className="text-[10px] text-white/30">{t.sidebar.freePlan}</p>
             </div>
             <div className="flex items-center gap-1">
               <button

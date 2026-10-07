@@ -52,7 +52,7 @@ export function SettingsCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 ${className}`}
+      className={`rounded-2xl border border-white/[0.08] bg-white/[0.025] p-3 sm:p-5 ${className}`}
     >
       {children}
     </div>

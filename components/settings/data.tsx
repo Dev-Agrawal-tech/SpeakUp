@@ -151,7 +151,7 @@ export function DataSettings() {
             <button
               onClick={handleExport}
               disabled={exporting}
-              className="px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] text-sm font-medium transition whitespace-nowrap disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] text-sm font-medium transition whitespace-nowrap disabled:opacity-50"
             >
               {exporting ? 'Exporting...' : 'Request Download'}
             </button>
@@ -188,7 +188,7 @@ export function DataSettings() {
               </div>
               <button
                 onClick={() => setShowClearConfirm(true)}
-                className="px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-red-500/10 border border-white/[0.1] hover:border-red-500/30 text-sm font-medium text-red-400 hover:text-red-300 transition whitespace-nowrap"
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-red-500/10 border border-white/[0.1] hover:border-red-500/30 text-sm font-medium text-red-400 hover:text-red-300 transition whitespace-nowrap"
               >
                 Clear History
               </button>
@@ -208,7 +208,7 @@ export function DataSettings() {
               </div>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 text-sm font-medium text-red-400 transition whitespace-nowrap"
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 text-sm font-medium text-red-400 transition whitespace-nowrap"
               >
                 Delete Account
               </button>

@@ -158,7 +158,7 @@ export function normalizeSettings(value: unknown): AppSettings {
       animations: booleanValue(appearance.animations, defaultSettings.appearance.animations),
     },
     language: {
-      displayLanguage: enumValue(language.displayLanguage, ['en'] as const, defaultSettings.language.displayLanguage),
+      displayLanguage: enumValue(language.displayLanguage, ['en', 'hi', 'es'] as const, defaultSettings.language.displayLanguage),
       timeZone: typeof language.timeZone === 'string' ? language.timeZone : defaultSettings.language.timeZone,
       dateFormat: enumValue(language.dateFormat, ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'] as const, defaultSettings.language.dateFormat),
       timeFormat: enumValue(language.timeFormat, ['12h', '24h'] as const, defaultSettings.language.timeFormat),
@@ -214,6 +214,7 @@ export function writeSettings(settings: AppSettings): boolean {
   if (typeof window === 'undefined') return false
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeSettings(settings)))
+    window.dispatchEvent(new Event('settings-updated'))
     return true
   } catch {
     return false

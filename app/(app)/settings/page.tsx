@@ -79,12 +79,12 @@ function SettingsOverview({
           Manage your account, security, preferences and subscription.
         </p>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {settingsSections.map((section) => (
           <button
             key={section.id}
             onClick={() => onSelect(section.id)}
-            className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300/20 hover:bg-white/[0.04] hover:shadow-lg"
+            className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4 sm:p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300/20 hover:bg-white/[0.04] hover:shadow-lg"
           >
             <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-blue-500/[0.06] transition-all duration-500 group-hover:scale-[2.5] group-hover:bg-blue-500/[0.1]" />
             <div className="relative">
@@ -145,8 +145,8 @@ export default function SettingsPage() {
         className="min-h-screen bg-[#0A0A0A] text-white"
       >
         {/* Top bar */}
-        <header className="sticky top-0 z-20 bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-white/[0.06]">
-          <div className="flex items-center gap-3 px-4 py-3 sm:px-6 max-w-7xl mx-auto">
+        <header className="sticky top-0 z-30 bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-white/[0.06]">
+          <div className="flex items-center gap-3 px-3 py-3 sm:px-6 max-w-7xl mx-auto">
             <button
               onClick={() => {
                 if (activeSection) {
@@ -158,7 +158,7 @@ export default function SettingsPage() {
               className="flex items-center gap-2 text-sm text-white/50 hover:text-white/80 transition"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">
+              <span>
                 {activeSection ? 'Settings' : 'Dashboard'}
               </span>
             </button>
@@ -167,7 +167,7 @@ export default function SettingsPage() {
           </div>
         </header>
 
-        <div className="max-w-7xl mx-auto flex">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row">
           {/* ─── Desktop sidebar nav ─── */}
           <nav className="hidden lg:block w-56 shrink-0 border-r border-white/[0.06] py-6 px-3 sticky top-[53px] h-[calc(100vh-53px)] overflow-y-auto">
             <button
@@ -201,17 +201,17 @@ export default function SettingsPage() {
           {/* ─── Mobile nav dropdown ─── */}
           <div className="lg:hidden w-full">
             {activeSection && (
-              <div className="px-4 pt-4">
+              <div className="px-3 sm:px-4 pt-3">
                 <button
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
-                  className="w-full flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-sm"
+                  className="w-full flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-sm"
                 >
-                  <span className="flex items-center gap-2">
-                    {currentSection?.icon}
-                    {currentSection?.label}
+                  <span className="flex items-center gap-2 min-w-0">
+                    <span className="shrink-0">{currentSection?.icon}</span>
+                    <span className="truncate">{currentSection?.label}</span>
                   </span>
                   <ChevronRight
-                    className={`h-3.5 w-3.5 text-white/30 transition-transform ${
+                    className={`h-3.5 w-3.5 shrink-0 text-white/30 transition-transform ${
                       mobileNavOpen ? 'rotate-90' : ''
                     }`}
                   />
@@ -223,17 +223,17 @@ export default function SettingsPage() {
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden mt-1 rounded-xl border border-white/[0.08] bg-[#111111]"
+                      className="overflow-hidden mt-1 rounded-xl border border-white/[0.08] bg-[#111111] max-h-[60vh] overflow-y-auto"
                     >
                       <button
                         onClick={() => {
                           setActiveSection(null)
                           setMobileNavOpen(false)
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/50 hover:bg-white/[0.04] transition"
+                        className="w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 text-sm text-white/50 hover:bg-white/[0.04] transition"
                       >
-                        <Settings className="h-4 w-4" />
-                        Overview
+                        <Settings className="h-4 w-4 shrink-0" />
+                        <span className="truncate">Overview</span>
                       </button>
                       {settingsSections.map((section) => (
                         <button
@@ -242,14 +242,14 @@ export default function SettingsPage() {
                             setActiveSection(section.id)
                             setMobileNavOpen(false)
                           }}
-                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition ${
+                          className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 text-sm transition ${
                             activeSection === section.id
                               ? 'text-blue-300 bg-blue-500/10'
                               : 'text-white/50 hover:bg-white/[0.04]'
                           }`}
                         >
-                          {section.icon}
-                          {section.label}
+                          <span className="shrink-0">{section.icon}</span>
+                          <span className="truncate">{section.label}</span>
                         </button>
                       ))}
                     </motion.div>
@@ -260,7 +260,7 @@ export default function SettingsPage() {
           </div>
 
           {/* ─── Content area ─── */}
-          <main className="flex-1 min-w-0 py-6 px-4 sm:px-8 lg:px-10">
+          <main className="flex-1 min-w-0 py-4 sm:py-6 px-3 sm:px-6 lg:px-10">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSection || 'overview'}
