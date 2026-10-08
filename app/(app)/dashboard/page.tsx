@@ -278,44 +278,44 @@ export default function DashboardPage() {
               </button>
             </div>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredScenarios.map((scenario, index) => (
                 <button
                   key={scenario.id}
                   onClick={() => router.push(`/scenario/${scenario.id}`)}
-                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-300/25 hover:bg-white/[0.05] hover:shadow-[0_16px_40px_rgba(0,0,0,.25)]"
+                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:bg-white/[0.04] hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.3)] shadow-blue-500/10"
                 >
                   {/* Glow */}
-                  <div className={`absolute -right-8 -top-8 h-20 w-20 rounded-full bg-gradient-to-br ${track.accent} opacity-[.08] transition-all duration-500 group-hover:scale-[2] group-hover:opacity-[.15]`} />
+                  <div className={`absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${track.accent} opacity-[0.06] transition-all duration-500 group-hover:scale-[2] group-hover:opacity-[0.12]`} />
 
                   <div className="relative">
                     {/* Top row */}
-                    <div className="mb-5 flex items-center justify-between">
-                      <span className="text-[11px] font-medium text-white/25">
-                        {String(index + 1).padStart(2, '0')}
+                    <div className="mb-4 flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-white/30 tracking-wider">
+                        #{String(index + 1).padStart(2, '0')}
                       </span>
-                      <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium ${levelColors[scenario.level]}`}>
+                      <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${levelColors[scenario.level]}`}>
                         {scenario.level}
                       </span>
                     </div>
 
                     {/* Title */}
-                    <h4 className="min-h-[2.75rem] text-[15px] font-semibold leading-snug mb-1">
+                    <h4 className="min-h-[2.75rem] text-[16px] font-bold leading-snug mb-2 text-white/80 group-hover:text-white transition-colors">
                       {scenario.title}
                     </h4>
 
                     {/* Prompt preview */}
-                    <p className="text-xs text-white/30 line-clamp-2 mb-5 leading-relaxed">
+                    <p className="text-[13px] text-white/50 line-clamp-2 mb-6 leading-relaxed group-hover:text-white/70 transition-colors">
                       {scenario.prompt}
                     </p>
 
                     {/* Bottom */}
-                    <div className="flex items-center justify-between text-[11px] text-white/35">
-                      <span className="flex items-center gap-1">
-                        <Clock3 className="h-3 w-3" /> {scenario.duration}s
+                    <div className="flex items-center justify-between text-[12px] text-white/40 pt-4 border-t border-white/[0.04]">
+                      <span className="flex items-center gap-1.5 font-medium">
+                        <Clock3 className="h-3.5 w-3.5" /> {scenario.duration}s
                       </span>
-                      <span className="flex items-center gap-1 text-blue-400/60 group-hover:text-blue-400 transition">
-                        Start <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" />
+                      <span className="flex items-center gap-1.5 font-bold text-blue-400 opacity-80 group-hover:opacity-100 transition-all">
+                        Start <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                       </span>
                     </div>
                   </div>
