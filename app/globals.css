@@ -264,17 +264,19 @@ body {
 
 /* ─── Light Theme: Gradient overrides ─── */
 :root[data-theme="light"] [class*="from-[#172552]"],
-:root[data-theme="light"] [class*="from-[#151d3a]"],
+:root[data-theme="light"] [class*="from-[#151d3a]"] {
+  --tw-gradient-from: rgba(37, 99, 235, 0.18) !important;
+}
+
 :root[data-theme="light"] [class*="via-[#11172b]"],
 :root[data-theme="light"] [class*="via-[#0f1528]"] {
-  --tw-gradient-from: rgba(37, 99, 235, 0.06) !important;
-  --tw-gradient-via: rgba(37, 99, 235, 0.03) !important;
+  --tw-gradient-via: rgba(37, 99, 235, 0.10) !important;
 }
 
 :root[data-theme="light"] [class*="from-blue-900/"],
 :root[data-theme="light"] [class*="to-violet-900/"] {
-  --tw-gradient-from: rgba(37, 99, 235, 0.08) !important;
-  --tw-gradient-to: rgba(139, 92, 246, 0.06) !important;
+  --tw-gradient-from: rgba(37, 99, 235, 0.20) !important;
+  --tw-gradient-to: rgba(139, 92, 246, 0.16) !important;
 }
 
 /* ─── Light Theme: Scrollbar ─── */
@@ -413,6 +415,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
