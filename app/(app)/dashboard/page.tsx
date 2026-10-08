@@ -283,7 +283,7 @@ export default function DashboardPage() {
                 <button
                   key={scenario.id}
                   onClick={() => router.push(`/scenario/${scenario.id}`)}
-                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:bg-white/[0.04] hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.3)] shadow-blue-500/10"
+                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 text-left transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500/30 hover:bg-white/[0.04] hover:shadow-[0_24px_50px_rgba(0,0,0,0.35)] shadow-blue-500/10"
                 >
                   {/* Glow */}
                   <div className={`absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${track.accent} opacity-[0.06] transition-all duration-500 group-hover:scale-[2] group-hover:opacity-[0.12]`} />
