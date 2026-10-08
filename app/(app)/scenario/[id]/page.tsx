@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   ChevronLeft, Clock3, Mic, Square, Send,
   AlertCircle, Loader2, History,
-  X, Sparkles, TrendingUp, RefreshCw
+  X, Sparkles, TrendingUp, RefreshCw, Trash2
 } from 'lucide-react'
 import { getScenarioById } from '@/lib/scenarios/catalogue'
 
@@ -123,6 +123,27 @@ export default function ScenarioPage() {
     setViewState('review')
   }, [])
 
+  const cancelRecording = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop() } catch {}
+      recognitionRef.current = null
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop()
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+    }
+    setTranscript('')
+    setInterimText('')
+    setViewState('ready')
+  }, [])
+
   // Timer countdown
   useEffect(() => {
     if (viewState !== 'recording') return
@@ -184,6 +205,29 @@ export default function ScenarioPage() {
   const openHistoryDrawer = () => {
     setHistoryOpen(true)
     fetchHistory()
+  }
+
+  const handleClearHistory = async () => {
+    if (!scenarioId) return
+    const confirmed = confirm('Are you sure you want to permanently delete all history for this scenario?')
+    if (!confirmed) return
+
+    setLoadingHistory(true)
+    try {
+      const res = await fetch(`/api/scenario-history?scenarioId=${encodeURIComponent(scenarioId)}`, {
+        method: 'DELETE',
+      })
+      if (res.ok) {
+        setHistoryItems([])
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(`speakup_history_${scenarioId}`)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to clear history', err)
+    } finally {
+      setLoadingHistory(false)
+    }
   }
 
   const startRecording = useCallback(async () => {
@@ -491,12 +535,20 @@ export default function ScenarioPage() {
                   </p>
                 </div>
 
-                <button
-                  onClick={stopRecording}
-                  className="w-full py-3.5 bg-red-600 hover:bg-red-500 active:scale-[0.98] rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2"
-                >
-                  <Square className="h-4 w-4" /> Stop Recording
-                </button>
+                <div className="flex gap-3 w-full">
+                  <button
+                    onClick={cancelRecording}
+                    className="flex-1 py-3.5 bg-white/[0.06] hover:bg-white/[0.1] active:scale-[0.98] rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 border border-white/[0.08]"
+                  >
+                    <X className="h-4 w-4" /> Cancel
+                  </button>
+                  <button
+                    onClick={stopRecording}
+                    className="flex-[1.5] py-3.5 bg-red-600 hover:bg-red-500 active:scale-[0.98] rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/20"
+                  >
+                    <Square className="h-4 w-4" /> Stop & Review
+                  </button>
+                </div>
               </div>
             )}
 
@@ -552,9 +604,9 @@ export default function ScenarioPage() {
 
                 {/* Encouragement */}
                 {analysisResult.encouragement && (
-                  <div className="mb-5 p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-2.5">
+                  <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)]">
                     <Sparkles className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                    <p className="text-xs text-blue-200 leading-relaxed">{analysisResult.encouragement}</p>
+                    <p className="text-sm font-medium text-blue-300 leading-relaxed">{analysisResult.encouragement}</p>
                   </div>
                 )}
 
@@ -572,34 +624,34 @@ export default function ScenarioPage() {
                         key={idx}
                         className={`p-4 rounded-xl border transition-all ${
                           isResolved
-                            ? 'bg-emerald-500/5 border-emerald-500/20'
+                            ? 'bg-emerald-500/10 border-emerald-500/30 shadow-[0_4px_16px_-4px_rgba(16,185,129,0.15)]'
                             : isNew
-                              ? 'bg-blue-500/5 border-blue-500/20'
-                              : 'bg-amber-500/5 border-amber-500/20'
+                              ? 'bg-blue-500/10 border-blue-500/30 shadow-[0_4px_16px_-4px_rgba(59,130,246,0.15)]'
+                              : 'bg-amber-500/10 border-amber-500/30 shadow-[0_4px_16px_-4px_rgba(245,158,11,0.15)]'
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                            <span className="w-5 h-5 rounded-full bg-white/10 text-[11px] flex items-center justify-center">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-[13px] font-bold text-white/90 flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-white/10 text-[11px] flex items-center justify-center border border-white/10">
                               {idx + 1}
                             </span>
                             {item.problemText}
                           </span>
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider border ${
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                               isResolved
-                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
                                 : isNew
-                                  ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-                                  : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                  ? 'bg-blue-500/20 text-blue-400 border-blue-500/40'
+                                  : 'bg-amber-500/20 text-amber-400 border-amber-500/40'
                             }`}
                           >
                             {isResolved ? 'Resolved ✓' : isNew ? 'New Issue' : 'Unresolved'}
                           </span>
                         </div>
-                        <p className="text-xs text-white/60 leading-relaxed pl-6">
-                          💡 <strong className="text-white/80 font-medium">Fix:</strong> {item.solutionText}
-                        </p>
+                        <div className="text-[13px] text-white/70 leading-relaxed pl-8">
+                          <span className="inline-block mr-1">💡</span> <strong className="text-white/90 font-semibold">Fix:</strong> {item.solutionText}
+                        </div>
                       </div>
                     )
                   })}
@@ -630,7 +682,7 @@ export default function ScenarioPage() {
       {/* ─── Scenario History Drawer / Modal ─── */}
       {historyOpen && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-[#0D0D0D] h-full border-l border-white/[0.08] p-6 overflow-y-auto flex flex-col animate-in slide-in-from-right duration-300">
+          <div className="w-full max-w-md bg-[#0A0A0A] h-full border-l border-white/[0.1] p-6 overflow-y-auto flex flex-col animate-in slide-in-from-right duration-300 shadow-2xl">
 
             {/* Header */}
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/[0.08]">
@@ -640,12 +692,23 @@ export default function ScenarioPage() {
                 </h2>
                 <p className="text-xs text-white/40">{scenario.title}</p>
               </div>
-              <button
-                onClick={() => setHistoryOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-2">
+                {historyItems.length > 0 && (
+                  <button
+                    onClick={handleClearHistory}
+                    title="Clear History"
+                    className="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:text-red-300 transition"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+                <button
+                  onClick={() => setHistoryOpen(false)}
+                  className="w-8 h-8 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white transition"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             {/* Loading */}
@@ -679,36 +742,36 @@ export default function ScenarioPage() {
                   <p className="text-xs font-semibold uppercase tracking-wider text-white/30">Attempt Logs</p>
 
                   {historyItems.map((item, idx) => (
-                    <div key={item.id || idx} className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-semibold text-white/60">
+                    <div key={item.id || idx} className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] shadow-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-bold text-white/80">
                           Attempt #{historyItems.length - idx}
                         </span>
-                        <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                        <span className="text-[11px] font-bold text-blue-400 bg-blue-500/15 border border-blue-500/30 px-2.5 py-1 rounded-full">
                           Score: {item.score}/100
                         </span>
                       </div>
 
                       {/* Transcript */}
-                      <p className="text-xs text-white/50 bg-black/40 p-2.5 rounded-lg border border-white/[0.04] mb-3 leading-relaxed">
+                      <p className="text-[13px] text-white/60 bg-black/30 p-3 rounded-xl border border-white/[0.05] mb-4 leading-relaxed">
                         &quot;{item.transcript}&quot;
                       </p>
 
                       {/* Feedback points */}
                       {item.feedback && item.feedback.length > 0 && (
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           {item.feedback.map((f, fIdx) => (
-                            <div key={fIdx} className="text-[11px] text-white/70 flex items-start gap-1.5">
-                              <span className="text-blue-400 font-bold">•</span>
-                              <div>
-                                <span className="font-semibold text-white">{f.problemText}:</span> {f.solutionText}
+                            <div key={fIdx} className="text-[12px] text-white/70 flex items-start gap-2">
+                              <span className="text-blue-400 font-bold mt-0.5">•</span>
+                              <div className="leading-relaxed">
+                                <span className="font-semibold text-white/90">{f.problemText}:</span> {f.solutionText}
                               </div>
                             </div>
                           ))}
                         </div>
                       )}
 
-                      <p className="text-[9px] text-white/20 mt-3 text-right">
+                      <p className="text-[10px] font-medium text-white/30 mt-4 text-right">
                         {new Date(item.createdAt).toLocaleString()}
                       </p>
                     </div>

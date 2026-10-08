@@ -90,3 +90,57 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
+
+/**
+ * DELETE /api/scenario-history?scenarioId=founder-1
+ * Deletes all past attempts for the user on a specific scenario.
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const scenarioId = searchParams.get('scenarioId')
+
+    if (!scenarioId) {
+      return NextResponse.json({ error: 'scenarioId is required' }, { status: 400 })
+    }
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Since sessions holds the foreign key and we don't have CASCADE set up, 
+    // we need to delete child records first or they will be orphaned (if no fkey) 
+    // actually, we should just delete the sessions and rely on the frontend to refresh.
+    // Wait, let's delete them cleanly:
+    
+    // First, find all session IDs for this user & scenario
+    const { data: sessions } = await supabase
+      .from('sessions')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('scenario_id', scenarioId)
+      
+    if (sessions && sessions.length > 0) {
+      const sessionIds = sessions.map(s => s.id)
+      
+      // Delete child records first
+      await supabase.from('feedback_items').delete().in('session_id', sessionIds)
+      await supabase.from('scores').delete().in('session_id', sessionIds)
+      
+      // Delete sessions
+      const { error } = await supabase.from('sessions').delete().in('id', sessionIds)
+      
+      if (error) throw error
+    }
+
+    return NextResponse.json({ success: true })
+
+  } catch (err: unknown) {
+    console.error('Scenario history delete error:', err)
+    const msg = err instanceof Error ? err.message : 'Error deleting scenario history.'
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
+}
