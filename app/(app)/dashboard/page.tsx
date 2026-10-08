@@ -283,15 +283,15 @@ export default function DashboardPage() {
                 <button
                   key={scenario.id}
                   onClick={() => router.push(`/scenario/${scenario.id}`)}
-                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:bg-white/[0.04] hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.3)] shadow-blue-500/10"
+                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.06] p-5 text-left transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.035] hover:border-blue-500/50 hover:bg-white/[0.10] hover:shadow-[0_45px_80px_-15px_rgba(0,0,0,0.75),0_0_60px_-10px_rgba(37,99,235,0.3)] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)]"
                 >
                   {/* Glow */}
-                  <div className={`absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${track.accent} opacity-[0.06] transition-all duration-500 group-hover:scale-[2] group-hover:opacity-[0.12]`} />
+                  <div className={`absolute -right-6 -top-6 h-16 w-16 rounded-full bg-gradient-to-br ${track.accent} opacity-[0.18] transition-all duration-500 group-hover:scale-[2] group-hover:opacity-[0.35]`} />
 
                   <div className="relative">
                     {/* Top row */}
                     <div className="mb-4 flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-white/30 tracking-wider">
+                      <span className="text-[11px] font-bold text-white/50 group-hover:text-white/90 transition-colors tracking-wider">
                         #{String(index + 1).padStart(2, '0')}
                       </span>
                       <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${levelColors[scenario.level]}`}>
