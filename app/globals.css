@@ -211,51 +211,64 @@ body {
 
 /* ─── Light Theme: Text overrides (GRANULAR opacity mapping) ─── */
 /* Solid white text → dark foreground */
-:root[data-theme="light"] [class~="text-white"] {
+:root[data-theme="light"] [class*="text-white"] {
   color: #172033 !important;
 }
 
-/* High visibility text (white/80, white/70, white/60) → strong text */
-:root[data-theme="light"] [class~="text-white/80"],
+/* High visibility text (white/90, white/80, white/70, white/60) → strong text */
+:root[data-theme="light"] [class*="text-white/90"],
+:root[data-theme="light"] [class*="text-white/[0.9]"] {
+  color: rgba(23, 32, 51, 0.94) !important;
+}
+
+:root[data-theme="light"] [class*="text-white/80"],
 :root[data-theme="light"] [class*="text-white/[0.8]"] {
   color: rgba(23, 32, 51, 0.88) !important;
 }
 
-:root[data-theme="light"] [class~="text-white/70"],
+:root[data-theme="light"] [class*="text-white/70"],
 :root[data-theme="light"] [class*="text-white/[0.7]"] {
   color: rgba(23, 32, 51, 0.78) !important;
 }
 
-:root[data-theme="light"] [class~="text-white/60"],
+:root[data-theme="light"] [class*="text-white/60"],
 :root[data-theme="light"] [class*="text-white/[0.6]"] {
   color: rgba(23, 32, 51, 0.68) !important;
 }
 
 /* Medium visibility text (white/55, white/50, white/45, white/40) → muted */
-:root[data-theme="light"] [class~="text-white/55"],
-:root[data-theme="light"] [class~="text-white/50"],
-:root[data-theme="light"] [class~="text-white/45"] {
+:root[data-theme="light"] [class*="text-white/55"],
+:root[data-theme="light"] [class*="text-white/50"],
+:root[data-theme="light"] [class*="text-white/45"] {
   color: rgba(23, 32, 51, 0.58) !important;
 }
 
-:root[data-theme="light"] [class~="text-white/40"],
+:root[data-theme="light"] [class*="text-white/40"],
 :root[data-theme="light"] [class*="text-white/[0.4]"] {
   color: rgba(23, 32, 51, 0.52) !important;
 }
 
 /* Low visibility text (white/35, white/30, white/25, white/20) → subtle hint */
-:root[data-theme="light"] :not(.dark-card)>[class~="text-white/35"],
-:root[data-theme="light"] :not(.dark-card)>[class~="text-white/30"],
-:root[data-theme="light"] [class~="text-white/35"]:not(.dark-card *),
-:root[data-theme="light"] [class~="text-white/30"]:not(.dark-card *) {
+:root[data-theme="light"] :not(.dark-card)>[class*="text-white/35"],
+:root[data-theme="light"] :not(.dark-card)>[class*="text-white/30"],
+:root[data-theme="light"] [class*="text-white/35"]:not(.dark-card *),
+:root[data-theme="light"] [class*="text-white/30"]:not(.dark-card *) {
   color: rgba(23, 32, 51, 0.42) !important;
 }
 
-:root[data-theme="light"] :not(.dark-card)>[class~="text-white/25"],
-:root[data-theme="light"] :not(.dark-card)>[class~="text-white/20"],
-:root[data-theme="light"] [class~="text-white/25"]:not(.dark-card *),
-:root[data-theme="light"] [class~="text-white/20"]:not(.dark-card *) {
+:root[data-theme="light"] :not(.dark-card)>[class*="text-white/25"],
+:root[data-theme="light"] :not(.dark-card)>[class*="text-white/20"],
+:root[data-theme="light"] [class*="text-white/25"]:not(.dark-card *),
+:root[data-theme="light"] [class*="text-white/20"]:not(.dark-card *) {
   color: rgba(23, 32, 51, 0.32) !important;
+}
+
+/* ─── Light Theme: Specific Text Overrides ─── */
+:root[data-theme="light"] .text-light-dark {
+  color: #172033 !important;
+}
+:root[data-theme="light"] .text-light-muted {
+  color: rgba(23, 32, 51, 0.75) !important;
 }
 
 /* ─── Preserve White text inside dark cards in light mode ─── */
