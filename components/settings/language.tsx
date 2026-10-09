@@ -74,7 +74,7 @@ export function LanguageSettings() {
 
       <SettingsSection title="Time & Date">
         <SettingsCard className="space-y-6">
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-white/80 mb-2">
                 <Clock className="h-4 w-4 text-white/40" />
@@ -113,7 +113,7 @@ export function LanguageSettings() {
 
           <div>
             <label className="block text-sm font-medium text-white/80 mb-3">Time Format</label>
-            <div className="flex rounded-xl bg-white/[0.04] p-1 w-fit border border-white/[0.08]">
+            <div className="flex flex-col sm:flex-row rounded-xl bg-white/[0.04] p-1 w-fit border border-white/[0.08]">
               {['12h', '24h'].map((format) => (
                 <button
                   key={format}
@@ -132,7 +132,7 @@ export function LanguageSettings() {
         </SettingsCard>
       </SettingsSection>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-4 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-0 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
         <button
           onClick={handleSave}
           disabled={!dirtyCounter.isDirty || saving}

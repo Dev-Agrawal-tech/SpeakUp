@@ -351,14 +351,14 @@ export function ProfileSettings() {
       </SettingsSection>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-4 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
-        <button className="px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white/80 hover:bg-white/[0.06] transition">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-0 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
+        <button className="px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white/80 hover:bg-white/[0.06] transition order-2 sm:order-1">
           Preview Profile
         </button>
         <button 
           onClick={handleSave}
           disabled={!isDirty || saving}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(37,99,235,0.2)]"
+          className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(37,99,235,0.2)] order-1 sm:order-2"
         >
           {saving ? 'Saving...' : (
             <>

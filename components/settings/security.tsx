@@ -107,7 +107,7 @@ export function SecuritySettings() {
               />
             </div>
             
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input 
                   type="checkbox" 
@@ -146,7 +146,7 @@ export function SecuritySettings() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-4 p-3 rounded-xl bg-black/40 border border-white/[0.08]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 rounded-xl bg-black/40 border border-white/[0.08]">
             <p className="text-xs text-white/50">Remote session management is not connected to Supabase yet.</p>
             <span className="shrink-0 px-2 py-1 rounded-md bg-white/[0.04] text-[10px] font-medium text-white/40 uppercase tracking-wider">
               Coming Soon

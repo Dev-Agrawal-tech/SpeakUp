@@ -125,7 +125,7 @@ export function AppearanceSettings() {
         <SettingsCard className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-white/80 mb-3">UI Density</label>
-            <div className="flex rounded-xl bg-white/[0.04] p-1 w-fit border border-white/[0.08]">
+            <div className="flex flex-wrap rounded-xl bg-white/[0.04] p-1 w-fit border border-white/[0.08]">
               {['compact', 'normal', 'relaxed'].map((density) => (
                 <button
                   key={density}
@@ -153,7 +153,7 @@ export function AppearanceSettings() {
         </SettingsCard>
       </SettingsSection>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-4 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-0 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
         <button
           onClick={handleSave}
           disabled={!dirtyCounter.isDirty || saving}

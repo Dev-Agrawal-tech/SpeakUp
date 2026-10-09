@@ -151,7 +151,7 @@ export function VerificationSettings() {
       {/* Email Verification (Real) */}
       <SettingsSection title="Email Address">
         <SettingsCard className="mb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                 <Mail className="h-5 w-5 text-blue-400" />
@@ -170,7 +170,7 @@ export function VerificationSettings() {
         <SettingsCard>
           <form onSubmit={handleUpdateEmail}>
             <label className="block text-xs font-medium text-white/60 mb-1.5">Change Email Address</label>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input 
                 type="email" 
                 value={newEmail}
@@ -196,7 +196,7 @@ export function VerificationSettings() {
       {/* Mobile Verification (UI Only) */}
       <SettingsSection title="Mobile Number">
         <SettingsCard>
-          <div className="flex items-center justify-between mb-5 pb-5 border-b border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-5 border-b border-white/[0.06]">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center">
                 <Smartphone className="h-5 w-5 text-white/40" />
@@ -213,7 +213,7 @@ export function VerificationSettings() {
 
           <form onSubmit={handleAddMobile}>
             <label className="block text-xs font-medium text-white/60 mb-1.5">Add Mobile Number</label>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">+91</span>
                 <input 

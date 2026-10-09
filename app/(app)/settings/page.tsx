@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, User, Shield, BadgeCheck, CreditCard, Bell,
   EyeOff, Palette, Globe, Database, HelpCircle, Plug,
-  Accessibility, ChevronRight, Settings,
+  Accessibility, ChevronRight, Settings, ChevronDown, X,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ToastProvider } from '@/components/ui/toast'
@@ -49,7 +49,7 @@ export const settingsSections: SettingsSectionDef[] = [
 /* ─── Stub page for sections not yet built ─── */
 function SectionStub({ section }: { section: SettingsSectionDef }) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
+    <div className="flex flex-col items-center justify-center py-20 text-center px-4">
       <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-4 text-white/30">
         {section.icon}
       </div>
@@ -70,38 +70,59 @@ function SettingsOverview({
 }) {
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <Settings className="h-6 w-6 text-blue-400" />
-          <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+          <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" />
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Settings</h1>
         </div>
-        <p className="text-sm text-white/40">
+        <p className="text-xs sm:text-sm text-white/40">
           Manage your account, security, preferences and subscription.
         </p>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {settingsSections.map((section) => (
           <button
             key={section.id}
             onClick={() => onSelect(section.id)}
-            className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300/20 hover:bg-white/[0.04] hover:shadow-lg"
+            className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4 sm:p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300/20 hover:bg-white/[0.04] hover:shadow-lg active:scale-[0.98]"
           >
             <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-blue-500/[0.06] transition-all duration-500 group-hover:scale-[2.5] group-hover:bg-blue-500/[0.1]" />
-            <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center mb-3 text-white/50 group-hover:text-blue-400 transition-colors">
+            <div className="relative flex items-start gap-3 sm:block">
+              <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center shrink-0 sm:mb-3 text-white/50 group-hover:text-blue-400 transition-colors">
                 {section.icon}
               </div>
-              <h3 className="text-sm font-semibold mb-1">{section.label}</h3>
-              <p className="text-xs text-white/35 leading-relaxed">
-                {section.description}
-              </p>
-              <ChevronRight className="absolute top-0 right-0 h-3.5 w-3.5 text-white/15 group-hover:text-blue-400/60 transition" />
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold mb-0.5 sm:mb-1">{section.label}</h3>
+                <p className="text-xs text-white/35 leading-relaxed line-clamp-2">
+                  {section.description}
+                </p>
+              </div>
+              <ChevronRight className="h-3.5 w-3.5 text-white/15 group-hover:text-blue-400/60 transition shrink-0 self-center sm:absolute sm:top-0 sm:right-0" />
             </div>
           </button>
         ))}
       </div>
     </div>
   )
+}
+
+/* ─── Render active section content ─── */
+function SectionContent({ activeSection, currentSection }: { activeSection: string; currentSection: SettingsSectionDef }) {
+  switch (activeSection) {
+    case 'profile': return <ProfileSettings />
+    case 'security': return <SecuritySettings />
+    case 'verification': return <VerificationSettings />
+    case 'subscription': return <SubscriptionSettings />
+    case 'notifications': return <NotificationSettings />
+    case 'privacy': return <PrivacySettings />
+    case 'appearance': return <AppearanceSettings />
+    case 'language': return <LanguageSettings />
+    case 'accessibility': return <AccessibilitySettings />
+    case 'data': return <DataSettings />
+    case 'help': return <HelpSettings />
+    case 'integrations': return <IntegrationsSettings />
+    default: return <SectionStub section={currentSection} />
+  }
 }
 
 /* ─── Main settings layout ─── */
@@ -136,6 +157,12 @@ export default function SettingsPage() {
 
   const currentSection = settingsSections.find((s) => s.id === activeSection)
 
+  // Close mobile nav when switching sections
+  const selectSection = (id: string | null) => {
+    setActiveSection(id)
+    setMobileNavOpen(false)
+  }
+
   return (
     <ToastProvider>
       <motion.div
@@ -150,7 +177,7 @@ export default function SettingsPage() {
             <button
               onClick={() => {
                 if (activeSection) {
-                  setActiveSection(null)
+                  selectSection(null)
                 } else {
                   router.push('/dashboard')
                 }
@@ -162,16 +189,27 @@ export default function SettingsPage() {
                 {activeSection ? 'Settings' : 'Dashboard'}
               </span>
             </button>
+
+            {/* Mobile: show current section name in header */}
+            {activeSection && currentSection && (
+              <div className="flex items-center gap-2 lg:hidden">
+                <span className="text-white/20">/</span>
+                <span className="text-sm font-medium text-white/70 truncate max-w-[150px]">
+                  {currentSection.label}
+                </span>
+              </div>
+            )}
+
             <div className="flex-1" />
-            <span className="text-xs text-white/30">{displayName}</span>
+            <span className="text-xs text-white/30 truncate max-w-[120px]">{displayName}</span>
           </div>
         </header>
 
-        <div className="max-w-7xl mx-auto flex">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row">
           {/* ─── Desktop sidebar nav ─── */}
           <nav className="hidden lg:block w-56 shrink-0 border-r border-white/[0.06] py-6 px-3 sticky top-[53px] h-[calc(100vh-53px)] overflow-y-auto">
             <button
-              onClick={() => setActiveSection(null)}
+              onClick={() => selectSection(null)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all mb-1 ${
                 !activeSection
                   ? 'bg-blue-500/15 text-blue-300 border border-blue-500/20'
@@ -185,7 +223,7 @@ export default function SettingsPage() {
             {settingsSections.map((section) => (
               <button
                 key={section.id}
-                onClick={() => setActiveSection(section.id)}
+                onClick={() => selectSection(section.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all ${
                   activeSection === section.id
                     ? 'bg-blue-500/15 text-blue-300 border border-blue-500/20'
@@ -198,50 +236,45 @@ export default function SettingsPage() {
             ))}
           </nav>
 
-          {/* ─── Mobile nav dropdown ─── */}
-          <div className="lg:hidden w-full">
-            {activeSection && (
-              <div className="px-4 pt-4">
-                <button
-                  onClick={() => setMobileNavOpen(!mobileNavOpen)}
-                  className="w-full flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-sm"
-                >
-                  <span className="flex items-center gap-2">
-                    {currentSection?.icon}
-                    {currentSection?.label}
-                  </span>
-                  <ChevronRight
-                    className={`h-3.5 w-3.5 text-white/30 transition-transform ${
-                      mobileNavOpen ? 'rotate-90' : ''
-                    }`}
-                  />
-                </button>
-                <AnimatePresence>
-                  {mobileNavOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden mt-1 rounded-xl border border-white/[0.08] bg-[#111111]"
-                    >
+          {/* ─── Mobile nav: quick-switch dropdown (only when viewing a section) ─── */}
+          {activeSection && (
+            <div className="lg:hidden border-b border-white/[0.06]">
+              <button
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                className="w-full flex items-center justify-between gap-2 px-4 py-3 text-sm transition hover:bg-white/[0.02]"
+              >
+                <span className="flex items-center gap-2.5 text-white/70">
+                  {currentSection?.icon}
+                  <span className="font-medium">{currentSection?.label}</span>
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 text-white/30 transition-transform duration-200 ${
+                    mobileNavOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              <AnimatePresence>
+                {mobileNavOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden border-t border-white/[0.06] bg-[#0d0d0d]"
+                  >
+                    <div className="max-h-[60vh] overflow-y-auto py-1">
                       <button
-                        onClick={() => {
-                          setActiveSection(null)
-                          setMobileNavOpen(false)
-                        }}
+                        onClick={() => selectSection(null)}
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/50 hover:bg-white/[0.04] transition"
                       >
                         <Settings className="h-4 w-4" />
-                        Overview
+                        <span>Overview</span>
                       </button>
+                      <div className="h-px bg-white/[0.04] mx-4" />
                       {settingsSections.map((section) => (
                         <button
                           key={section.id}
-                          onClick={() => {
-                            setActiveSection(section.id)
-                            setMobileNavOpen(false)
-                          }}
+                          onClick={() => selectSection(section.id)}
                           className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition ${
                             activeSection === section.id
                               ? 'text-blue-300 bg-blue-500/10'
@@ -249,18 +282,18 @@ export default function SettingsPage() {
                           }`}
                         >
                           {section.icon}
-                          {section.label}
+                          <span>{section.label}</span>
                         </button>
                       ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
-          </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {/* ─── Content area ─── */}
-          <main className="flex-1 min-w-0 py-6 px-4 sm:px-8 lg:px-10">
+          <main className="flex-1 min-w-0 py-4 px-4 sm:py-6 sm:px-8 lg:px-10 overflow-x-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSection || 'overview'}
@@ -270,33 +303,9 @@ export default function SettingsPage() {
                 transition={{ duration: 0.2 }}
               >
                 {!activeSection || !currentSection ? (
-                  <SettingsOverview onSelect={setActiveSection} />
-                ) : activeSection === 'profile' ? (
-                  <ProfileSettings />
-                ) : activeSection === 'security' ? (
-                  <SecuritySettings />
-                ) : activeSection === 'verification' ? (
-                  <VerificationSettings />
-                ) : activeSection === 'subscription' ? (
-                  <SubscriptionSettings />
-                ) : activeSection === 'notifications' ? (
-                  <NotificationSettings />
-                ) : activeSection === 'privacy' ? (
-                  <PrivacySettings />
-                ) : activeSection === 'appearance' ? (
-                  <AppearanceSettings />
-                ) : activeSection === 'language' ? (
-                  <LanguageSettings />
-                ) : activeSection === 'accessibility' ? (
-                  <AccessibilitySettings />
-                ) : activeSection === 'data' ? (
-                  <DataSettings />
-                ) : activeSection === 'help' ? (
-                  <HelpSettings />
-                ) : activeSection === 'integrations' ? (
-                  <IntegrationsSettings />
+                  <SettingsOverview onSelect={selectSection} />
                 ) : (
-                  <SectionStub section={currentSection} />
+                  <SectionContent activeSection={activeSection} currentSection={currentSection} />
                 )}
               </motion.div>
             </AnimatePresence>

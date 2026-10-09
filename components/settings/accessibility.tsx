@@ -109,7 +109,7 @@ export function AccessibilitySettings() {
         </SettingsCard>
       </SettingsSection>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-4 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-0 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
         <button
           onClick={handleSave}
           disabled={!dirtyCounter.isDirty || saving}

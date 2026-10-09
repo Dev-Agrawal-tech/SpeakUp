@@ -42,7 +42,7 @@ export function SubscriptionSettings() {
 
       {/* Plan Cards */}
       <SettingsSection title="Available Plans">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {plans.map((plan) => {
             const isFree = plan.id === 'free'
             const isPlus = plan.id === 'plus'

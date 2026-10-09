@@ -68,7 +68,7 @@ export function PrivacySettings() {
           
           <div>
             <label className="block text-sm font-medium text-white/80 mb-3">Who can view your profile?</label>
-            <div className="grid sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { id: 'public', label: 'Public', desc: 'Anyone can view' },
                 { id: 'connections', label: 'Connections', desc: 'Only people you connect with' },
@@ -136,7 +136,7 @@ export function PrivacySettings() {
       {/* Safety (UI Only placeholders for future features) */}
       <SettingsSection title="Safety">
         <SettingsCard className="space-y-4">
-           <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
                   <Ban className="h-5 w-5 text-red-400" />
@@ -151,7 +151,7 @@ export function PrivacySettings() {
               </button>
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center">
                   <Flag className="h-5 w-5 text-orange-400" />
@@ -169,7 +169,7 @@ export function PrivacySettings() {
       </SettingsSection>
 
       {/* Save Button */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-4 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06] sticky bottom-0 z-10 bg-[#0A0A0A]/95 p-4 rounded-2xl backdrop-blur-md">
         <button
           onClick={handleSave}
           disabled={!dirtyCounter.isDirty || saving}
