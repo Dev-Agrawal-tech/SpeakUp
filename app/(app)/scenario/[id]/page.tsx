@@ -612,7 +612,7 @@ export default function ScenarioPage() {
 
                 {/* 3 Major Problems & Step-by-Step Solutions */}
                 <div className="mb-6 space-y-3">
-                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-white/40 text-light-muted uppercase tracking-wider">
                     3 Major Focus Points
                   </p>
 
@@ -631,8 +631,8 @@ export default function ScenarioPage() {
                         }`}
                       >
                         <div className="flex items-center justify-between mb-3">
-                          <span className="text-[13px] font-bold text-white/90 flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-white/10 text-[11px] flex items-center justify-center border border-white/10">
+                          <span className="text-[13px] font-bold text-white/90 text-light-dark flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-white/10 text-light-dark text-[11px] flex items-center justify-center border border-white/10">
                               {idx + 1}
                             </span>
                             {item.problemText}
@@ -649,8 +649,8 @@ export default function ScenarioPage() {
                             {isResolved ? 'Resolved ✓' : isNew ? 'New Issue' : 'Unresolved'}
                           </span>
                         </div>
-                        <div className="text-[13px] text-white/70 leading-relaxed pl-8">
-                          <span className="inline-block mr-1">💡</span> <strong className="text-white/90 font-semibold">Fix:</strong> {item.solutionText}
+                        <div className="text-[13px] text-white/70 text-light-muted leading-relaxed pl-8">
+                          <span className="inline-block mr-1">💡</span> <strong className="text-white/90 text-light-dark font-semibold">Fix:</strong> {item.solutionText}
                         </div>
                       </div>
                     )
@@ -687,10 +687,10 @@ export default function ScenarioPage() {
             {/* Header */}
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/[0.08]">
               <div>
-                <h2 className="text-base font-bold flex items-center gap-2">
+                <h2 className="text-base font-bold text-light-dark flex items-center gap-2">
                   <History className="h-4 w-4 text-blue-400" /> Scenario History
                 </h2>
-                <p className="text-xs text-white/40">{scenario.title}</p>
+                <p className="text-xs text-white/40 text-light-muted">{scenario.title}</p>
               </div>
               <div className="flex items-center gap-2">
                 {historyItems.length > 0 && (
@@ -718,8 +718,8 @@ export default function ScenarioPage() {
               </div>
             ) : historyItems.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <p className="text-xs text-white/30 mb-2">No past attempts found for this scenario.</p>
-                <p className="text-[11px] text-white/20">Record and submit a response to start your history track.</p>
+                <p className="text-xs text-white/30 text-light-muted mb-2">No past attempts found for this scenario.</p>
+                <p className="text-[11px] text-white/20 text-light-muted">Record and submit a response to start your history track.</p>
               </div>
             ) : (
               <div className="space-y-6 flex-1">
@@ -727,7 +727,7 @@ export default function ScenarioPage() {
                 <div className="p-4 rounded-xl bg-gradient-to-r from-blue-900/30 to-violet-900/30 border border-blue-500/20 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] uppercase font-semibold text-blue-300 tracking-wider">Total Attempts</p>
-                    <p className="text-xl font-bold">{historyItems.length}</p>
+                    <p className="text-xl font-bold text-light-dark">{historyItems.length}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[10px] uppercase font-semibold text-blue-300 tracking-wider flex items-center gap-1 justify-end">
@@ -739,12 +739,12 @@ export default function ScenarioPage() {
 
                 {/* Timeline */}
                 <div className="space-y-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-white/30">Attempt Logs</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-white/30 text-light-muted">Attempt Logs</p>
 
                   {historyItems.map((item, idx) => (
                     <div key={item.id || idx} className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] shadow-sm">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-bold text-white/80">
+                        <span className="text-sm font-bold text-white/80 text-light-dark">
                           Attempt #{historyItems.length - idx}
                         </span>
                         <span className="text-[11px] font-bold text-blue-400 bg-blue-500/15 border border-blue-500/30 px-2.5 py-1 rounded-full">
@@ -753,7 +753,7 @@ export default function ScenarioPage() {
                       </div>
 
                       {/* Transcript */}
-                      <p className="text-[13px] text-white/60 bg-black/30 p-3 rounded-xl border border-white/[0.05] mb-4 leading-relaxed">
+                      <p className="text-[13px] text-white/60 text-light-dark bg-black/30 p-3 rounded-xl border border-white/[0.05] mb-4 leading-relaxed">
                         &quot;{item.transcript}&quot;
                       </p>
 
@@ -761,10 +761,10 @@ export default function ScenarioPage() {
                       {item.feedback && item.feedback.length > 0 && (
                         <div className="space-y-3">
                           {item.feedback.map((f, fIdx) => (
-                            <div key={fIdx} className="text-[12px] text-white/70 flex items-start gap-2">
+                            <div key={fIdx} className="text-[12px] text-white/70 text-light-muted flex items-start gap-2">
                               <span className="text-blue-400 font-bold mt-0.5">•</span>
                               <div className="leading-relaxed">
-                                <span className="font-semibold text-white/90">{f.problemText}:</span> {f.solutionText}
+                                <span className="font-semibold text-white/90 text-light-dark">{f.problemText}:</span> {f.solutionText}
                               </div>
                             </div>
                           ))}
