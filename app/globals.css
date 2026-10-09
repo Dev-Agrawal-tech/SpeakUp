@@ -176,13 +176,23 @@ body {
 
 :root[data-theme="light"] [class*="bg-white/[0.05]"],
 :root[data-theme="light"] [class*="bg-white/[0.06]"] {
-  background-color: rgba(23, 32, 51, 0.055) !important;
+  background-color: rgba(23, 32, 51, 0.09) !important;
 }
 
 :root[data-theme="light"] [class*="bg-white/[0.08]"],
 :root[data-theme="light"] [class*="bg-white/[0.1]"],
 :root[data-theme="light"] [class*="bg-white/5"] {
-  background-color: rgba(23, 32, 51, 0.075) !important;
+  background-color: rgba(23, 32, 51, 0.14) !important;
+}
+
+:root[data-theme="light"] [class*="bg-white/[0.12]"],
+:root[data-theme="light"] [class*="bg-white/[0.14]"] {
+  background-color: rgba(23, 32, 51, 0.25) !important;
+}
+
+:root[data-theme="light"] [class*="bg-white/[0.18]"],
+:root[data-theme="light"] [class*="bg-white/[0.20]"] {
+  background-color: rgba(23, 32, 51, 0.05) !important;
 }
 
 /* Black backgrounds → light surfaces */
@@ -191,7 +201,7 @@ body {
 :root[data-theme="light"] [class*="bg-black/50"],
 :root[data-theme="light"] [class*="bg-black/60"],
 :root[data-theme="light"] [class*="bg-black/70"] {
-  background-color: rgba(23, 32, 51, 0.04) !important;
+  background-color: rgba(23, 32, 51, 0.5) !important;
 }
 
 /* ─── Light Theme: Text overrides (GRANULAR opacity mapping) ─── */
@@ -229,14 +239,94 @@ body {
 }
 
 /* Low visibility text (white/35, white/30, white/25, white/20) → subtle hint */
-:root[data-theme="light"] [class~="text-white/35"],
-:root[data-theme="light"] [class~="text-white/30"] {
+:root[data-theme="light"] :not(.dark-card)>[class~="text-white/35"],
+:root[data-theme="light"] :not(.dark-card)>[class~="text-white/30"],
+:root[data-theme="light"] [class~="text-white/35"]:not(.dark-card *),
+:root[data-theme="light"] [class~="text-white/30"]:not(.dark-card *) {
   color: rgba(23, 32, 51, 0.42) !important;
 }
 
-:root[data-theme="light"] [class~="text-white/25"],
-:root[data-theme="light"] [class~="text-white/20"] {
+:root[data-theme="light"] :not(.dark-card)>[class~="text-white/25"],
+:root[data-theme="light"] :not(.dark-card)>[class~="text-white/20"],
+:root[data-theme="light"] [class~="text-white/25"]:not(.dark-card *),
+:root[data-theme="light"] [class~="text-white/20"]:not(.dark-card *) {
   color: rgba(23, 32, 51, 0.32) !important;
+}
+
+/* ─── Preserve White text inside dark cards in light mode ─── */
+:root[data-theme="light"] .dark-card,
+:root[data-theme="light"] .dark-card [class~="text-white"] {
+  color: #ffffff !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/80"] {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/70"] {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/60"] {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/55"] {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/50"] {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/45"] {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/40"] {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/35"] {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/30"] {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/25"] {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+:root[data-theme="light"] .dark-card [class*="text-white/20"] {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ─── Light Theme: Scenario Cards perfectly match Dark Mode ─── */
+/* ─── Scenario Card Custom Colors ─── */
+.scenario-card-bg {
+  background-color: #18181b;
+  /* Dark mode grayish color */
+}
+
+.scenario-card-bg:hover {
+  background-color: #27272a;
+  /* Dark mode hover grayish color */
+}
+
+:root[data-theme="light"] .scenario-card-bg {
+  background-color: #e2e8f0 !important;
+  /* Light mode card background (visible light grey) */
+}
+
+:root[data-theme="light"] .scenario-card-bg:hover {
+  background-color: #d8cfcf !important;
+  /* Light mode card hover background (turns white) */
+}
+
+:root[data-theme="light"] .scenario-heading {
+  color: #000000 !important;
 }
 
 /* ─── Light Theme: Border overrides ─── */
@@ -264,17 +354,19 @@ body {
 
 /* ─── Light Theme: Gradient overrides ─── */
 :root[data-theme="light"] [class*="from-[#172552]"],
-:root[data-theme="light"] [class*="from-[#151d3a]"],
+:root[data-theme="light"] [class*="from-[#151d3a]"] {
+  --tw-gradient-from: #172552 !important;
+}
+
 :root[data-theme="light"] [class*="via-[#11172b]"],
 :root[data-theme="light"] [class*="via-[#0f1528]"] {
-  --tw-gradient-from: rgba(37, 99, 235, 0.06) !important;
-  --tw-gradient-via: rgba(37, 99, 235, 0.03) !important;
+  --tw-gradient-via: #11172b !important;
 }
 
 :root[data-theme="light"] [class*="from-blue-900/"],
 :root[data-theme="light"] [class*="to-violet-900/"] {
-  --tw-gradient-from: rgba(37, 99, 235, 0.08) !important;
-  --tw-gradient-to: rgba(139, 92, 246, 0.06) !important;
+  --tw-gradient-from: rgba(37, 99, 235, 0.20) !important;
+  --tw-gradient-to: rgba(139, 92, 246, 0.16) !important;
 }
 
 /* ─── Light Theme: Scrollbar ─── */
@@ -300,13 +392,24 @@ body {
 }
 
 /* ─── Light Theme: Specific status colors remain vivid ─── */
-:root[data-theme="light"] [class~="text-red-400"],
-:root[data-theme="light"] [class~="text-red-300"] {
+:root[data-theme="light"] :not(.dark-card)>[class~="text-blue-400"],
+:root[data-theme="light"] :not(.dark-card)>[class~="text-blue-300"],
+:root[data-theme="light"] [class~="text-blue-400"]:not(.dark-card *),
+:root[data-theme="light"] [class~="text-blue-300"]:not(.dark-card *) {
+  color: #2563eb !important;
+}
+
+:root[data-theme="light"] :not(.dark-card)>[class~="text-red-400"],
+:root[data-theme="light"] :not(.dark-card)>[class~="text-red-300"],
+:root[data-theme="light"] [class~="text-red-400"]:not(.dark-card *),
+:root[data-theme="light"] [class~="text-red-300"]:not(.dark-card *) {
   color: #dc2626 !important;
 }
 
-:root[data-theme="light"] [class~="text-emerald-400"],
-:root[data-theme="light"] [class~="text-emerald-300"] {
+:root[data-theme="light"] :not(.dark-card)>[class~="text-emerald-400"],
+:root[data-theme="light"] :not(.dark-card)>[class~="text-emerald-300"],
+:root[data-theme="light"] [class~="text-emerald-400"]:not(.dark-card *),
+:root[data-theme="light"] [class~="text-emerald-300"]:not(.dark-card *) {
   color: #059669 !important;
 }
 
@@ -413,6 +516,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
