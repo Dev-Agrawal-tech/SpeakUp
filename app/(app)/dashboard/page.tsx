@@ -219,7 +219,7 @@ export default function DashboardPage() {
 
         <div className="px-4 sm:px-8 py-6 sm:py-8 max-w-6xl">
           {/* ─── Hero Section ─── */}
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#172552]/80 via-[#11172b]/80 to-transparent p-6 sm:p-8 mb-8">
+          <div className="dark-card relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#172552]/80 via-[#11172b]/80 to-transparent p-6 sm:p-8 mb-8">
             <div className={`absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br ${track.accent} opacity-15 blur-3xl`} />
             <div className="relative">
               <div className="flex items-center gap-2 mb-3">
@@ -242,11 +242,10 @@ export default function DashboardPage() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSelectedLevel('All')}
-                className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all ${
-                  selectedLevel === 'All'
-                    ? 'bg-white/10 text-white border-white/20'
-                    : 'bg-white/[0.03] text-white/40 border-white/[0.06] hover:border-white/15 hover:text-white/60'
-                }`}
+                className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all ${selectedLevel === 'All'
+                  ? 'bg-white/10 text-white border-white/20'
+                  : 'bg-white/[0.03] text-white/40 border-white/[0.06] hover:border-white/15 hover:text-white/60'
+                  }`}
               >
                 All Levels
               </button>
@@ -254,11 +253,10 @@ export default function DashboardPage() {
                 <button
                   key={level}
                   onClick={() => setSelectedLevel(level)}
-                  className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all ${
-                    selectedLevel === level
-                      ? levelColors[level]
-                      : 'bg-white/[0.03] text-white/40 border-white/[0.06] hover:border-white/15 hover:text-white/60'
-                  }`}
+                  className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all ${selectedLevel === level
+                    ? levelColors[level]
+                    : 'bg-white/[0.03] text-white/40 border-white/[0.06] hover:border-white/15 hover:text-white/60'
+                    }`}
                 >
                   {level}
                 </button>
@@ -283,7 +281,7 @@ export default function DashboardPage() {
                 <button
                   key={scenario.id}
                   onClick={() => router.push(`/scenario/${scenario.id}`)}
-                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.06] p-5 text-left transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.035] hover:border-blue-500/50 hover:bg-white/[0.10] hover:shadow-[0_45px_80px_-15px_rgba(0,0,0,0.75),0_0_60px_-10px_rgba(37,99,235,0.3)] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)]"
+                  className="scenario-card-bg group relative overflow-hidden rounded-2xl border border-white/[0.08] p-5 text-left transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.035] hover:border-blue-500/50 hover:shadow-[0_45px_80px_-15px_rgba(0,0,0,0.75),0_0_60px_-10px_rgba(37,99,235,0.3)] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)]"
                 >
                   {/* Glow */}
                   <div className={`absolute -right-6 -top-6 h-16 w-16 rounded-full bg-gradient-to-br ${track.accent} opacity-[0.18] transition-all duration-500 group-hover:scale-[2] group-hover:opacity-[0.35]`} />
@@ -300,7 +298,7 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Title */}
-                    <h4 className="min-h-[2.75rem] text-[16px] font-bold leading-snug mb-2 text-white/80 group-hover:text-white transition-colors">
+                    <h4 className="scenario-heading min-h-[2.75rem] text-[16px] font-bold leading-snug mb-2 text-white/50 group-hover:text-white/80 transition-colors">
                       {scenario.title}
                     </h4>
 

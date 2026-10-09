@@ -446,7 +446,7 @@ export default function ScenarioPage() {
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
 
           {/* Left: Scenario Details */}
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#151d3a]/80 via-[#0f1528]/80 to-transparent p-6 sm:p-8">
+          <div className="dark-card relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#151d3a]/80 via-[#0f1528]/80 to-transparent p-6 sm:p-8">
             <div className={`absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br ${scenario.accent} opacity-[.1] blur-3xl`} />
             <div className="relative">
               <div className="mb-6 flex items-center justify-between">
