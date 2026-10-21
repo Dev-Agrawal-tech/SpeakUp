@@ -83,7 +83,7 @@ const defaultSettings: AppSettings = {
     personalization: true,
   },
   appearance: {
-    theme: 'dark', // App is natively dark
+    theme: 'light', // Light mode is default
     accentColor: 'blue',
     uiDensity: 'normal',
     animations: true,
@@ -218,6 +218,14 @@ export function writeSettings(settings: AppSettings): boolean {
   } catch {
     return false
   }
+}
+
+export function resetSettings(): void {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {}
+  applySettingsToDocument(defaultSettings)
 }
 
 export { defaultSettings }
