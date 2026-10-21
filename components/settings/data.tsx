@@ -7,6 +7,7 @@ import { SettingsHeader, SettingsSection, SettingsCard } from './primitives'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { resetSettings } from '@/lib/hooks/use-settings-store'
 
 export function DataSettings() {
   const { toast } = useToast()
@@ -121,6 +122,7 @@ export function DataSettings() {
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'Failed to delete account.')
+      resetSettings()
       await createClient().auth.signOut()
       router.push('/login')
     } catch (error) {

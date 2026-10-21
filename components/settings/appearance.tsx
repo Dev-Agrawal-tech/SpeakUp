@@ -60,8 +60,8 @@ export function AppearanceSettings() {
         <SettingsCard>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { id: 'dark', label: 'Dark', icon: Moon, desc: 'Natively dark' },
-              { id: 'light', label: 'Light', icon: Sun, desc: 'Bright and clear' },
+              { id: 'light', label: 'Light', icon: Sun, desc: 'Bright and clear (Default)' },
+              { id: 'dark', label: 'Dark', icon: Moon, desc: 'Sleek dark theme' },
               { id: 'system', label: 'System', icon: Monitor, desc: 'Syncs with device' },
             ].map((theme) => {
               const Icon = theme.icon
@@ -92,7 +92,7 @@ export function AppearanceSettings() {
             })}
           </div>
           <p className="text-xs text-white/40 mt-4 text-center">
-            SpeakUp is primarily designed for Dark mode.
+            Light mode is default. Switch to Dark or System theme anytime.
           </p>
         </SettingsCard>
       </SettingsSection>

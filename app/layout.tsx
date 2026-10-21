@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="en" className="h-full antialiased" data-theme="light" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -27,7 +27,7 @@ export default function RootLayout({
                 const allowedAccents = ['blue', 'purple', 'emerald', 'rose'];
                 const allowedDensities = ['compact', 'normal', 'relaxed'];
                 const allowedFontSizes = ['small', 'medium', 'large'];
-                const theme = allowedThemes.includes(appearance.theme) ? appearance.theme : 'dark';
+                const theme = allowedThemes.includes(appearance.theme) ? appearance.theme : 'light';
                 const accent = allowedAccents.includes(appearance.accentColor) ? appearance.accentColor : 'blue';
                 const density = allowedDensities.includes(appearance.uiDensity) ? appearance.uiDensity : 'normal';
                 const fontSize = allowedFontSizes.includes(accessibility.fontSize) ? accessibility.fontSize : 'medium';
